@@ -14,6 +14,7 @@ from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask import abort
 from flask_cors import  CORS
+from sklearn.linear_model import LinearRegression
 
 SECRET_KEY = "b'|\xe7\xbfU3`\xc4\xec\xa7\xa9zf:}\xb5\xc7\xb9\x139^3@Dv'"
 
@@ -293,3 +294,43 @@ def gettime():
 
     # Return the results as a JSON response
     return jsonify({'best_sell_time': sell_result, 'best_buy_time': buy_result})
+
+
+@app.route('/predict', methods=['GET'])
+def predict_future_values():
+    
+    sellusdtrans = []
+    buyusdtrans = []
+    days=7
+    
+    START_DATE = datetime.datetime.now() - datetime.timedelta(days=100)
+    END_DATE = datetime.datetime.now()
+    
+    for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),Transaction.usd_to_lbp==True).all():
+    
+        ratio = i.lbp_amount / i.usd_amount
+        
+        sellusdtrans.append(ratio)
+        
+    for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),Transaction.usd_to_lbp==False).all():
+    
+        ratio = i.lbp_amount / i.usd_amount
+        
+        buyusdtrans.append(ratio)
+    
+    X_sell = [[i] for i in range(len(sellusdtrans))]
+    X_buy = [[i] for i in range(len(buyusdtrans))]
+    y_sell = sellusdtrans
+    y_buy = buyusdtrans
+    
+    model_sell = LinearRegression().fit(X_sell, y_sell)
+    model_buy = LinearRegression().fit(X_buy, y_buy)
+    
+    future_X_sell = [[i] for i in range(len(sellusdtrans), len(sellusdtrans)+days)]
+    future_X_buy = [[i] for i in range(len(buyusdtrans), len(buyusdtrans)+days)]
+    
+    future_sell = model_sell.predict(future_X_sell)
+    future_buy = model_buy.predict(future_X_buy)
+    
+    return jsonify({'future sell':future_sell.tolist(), 'future_buy':future_buy.tolist()})
+
