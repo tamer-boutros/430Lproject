@@ -1,0 +1,51 @@
+.statistics__card {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 1.5rem;
+}
+
+.statistics__cards {
+    background: var(--color-bg-variant);
+    border: 1px solid var(--color-light);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.statistics__cards:hover {
+    background: var(--color-light);
+    border-color: var(--color-light);
+    cursor: default;
+    content: var(--color-bg-variant)
+}
+
+.statistics__icon {
+    color:var(--color-bg-light);
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+
+}
+
+.statistics__cards h5 {
+    font-size: 0.9rem;
+}
+
+
+.statistics__cards small {
+    font-size: 0.7rem;
+    color: var(--color-light);
+}
+
+.statistics__cards:hover h5 {
+    color: var(--color-bg-variant);
+}
+
+
+.statistics__cards:hover small {
+    color: var(--color-bg-variant);
+}
+
+.statistics__cards:hover .statistics__icon {
+    color:var(--color-bg-variant);
+} 
