@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    box-sizing: border-box;
+    list-style: none;
+    text-decoration: none;
+}
+
+:root {
+    --color-bg: #1f1f38;
+    /* --color-bg: #ffae00; */
+    --color-bg-turq: #0cf4be;
+    --color-bg-variant: #2c2c6c;
+    --color-primary: #4db5ff;
+    --color-white: #ffff;
+    --color-light: rgba(255,255,255,0.6);
+
+    --transition: all 400ms ease;
+
+    --container-width-lg: 75%;
+    --container-width-md: 86%;
+    --container-width-sm: 90%;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-white);
+    line-height: 1.7;
+    background-image: url(assets/bg-texture.png);
+}
+
+.nav_anchor{
+  font-family: 'Raleway', sans-serif;
+  color: var(--color-white);
+  font-size: large;
+}
+
+
+.header {
+  background-color: var(--color-bg-variant);
+  padding: 10px;
+}
+
+.header h1 {
+  color: #fff;
+}
+
+.wrapper {
+  margin-top: 50px;
+  background-color: var(--color-bg-variant);
+  border-radius: 15px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 30px;
+}
+
+.wrapper p {
+  font-style: italic;
+  color: var(--color-white);
+}
+
+
+
+
+.button {
+  margin: 10px 2px;
+  padding: 5px 20px;
+  border-radius: 8px;
+  background-color: #0093d5;
+  border: none;
+  color: #fff;
+  text-align: center;
+  display: inline-block;
+  font-size: small;
+}
+
+.form-item {
+  margin-bottom: 20px;
+  padding: 0px 10px;
+  width: fill;
+ }
+
+.button:hover {
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+
+
+.wrapper hr {
+  margin: 40px auto;
+}
+
+.nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+ }
+
+ .rates__card {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+.rates__cards {
+  background: var(--color-bg-variant);
+  border: 1px solid var(--color-light);
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.rates__icon {
+  color:var(--color-bg-light);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  justify-self: center;
+  align-self: center;
+
+}
+
+.rates__cards:hover {
+  background: var(--color-light);
+  border-color: var(--color-light);
+  cursor: default;
+  content: var(--color-bg-variant)
+}
+
+.rates__cards h5 {
+  font-size: 1.2rem;
+}
+
+
+.rates__cards small {
+  font-size: 1rem;
+  color: var(--color-light);
+}
+
+.rates__cards:hover h5 {
+  color: var(--color-bg-variant);
+}
+
+
+.rates__cards:hover small {
+  color: var(--color-bg-variant);
+}
+
+.rates__cards:hover .rates__icon {
+  color:var(--color-bg-variant);
+} 
+
+
+
+@media only screen and (min-width: 1400px) {
+  .wrapper {
+      width: 50%;
+  }
+
+  .wrapper input {
+      width: 600px;
+  }
+}
+
+@media only screen and (max-width: 1399px) and (min-width: 750px) {
+  .wrapper {
+      width: 75%;
+  }
+
+}
