@@ -80,93 +80,47 @@ def  get_transactions():
     else:
         abort(403)
 
+   
+
 @app.route('/exchangerate', methods=['GET'])
 def getexchangerate():
     
     sellusdtrans = []
     buyusdtrans = []
-    total_usd_sell_volume = 0
-    total_usd_buy_volume = 0
-    total_lbp_sell_volume = 0
-    total_lbp_buy_volume = 0
     
-    START_DATE = datetime.datetime.now() - datetime.timedelta(days=100)
+    START_DATE = datetime.datetime.now() - datetime.timedelta(days= 100)
     END_DATE = datetime.datetime.now()
     
     for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),Transaction.usd_to_lbp==True).all():
         
         ratio = i.lbp_amount / i.usd_amount
-        
         sellusdtrans.append(ratio)
-        
-        total_usd_sell_volume += i.usd_amount
-        
-        total_lbp_buy_volume += i.lbp_amount
         
     if len(sellusdtrans) == 0:
         avgsellusd = None
-        medsellusd = None
-        stdsellusd = None
-        volatsellusd = None
         
     else:
         avgsellusd = round(sum(sellusdtrans) / len(sellusdtrans),2)
-        medsellusd = round(np.median(sellusdtrans), 2)
-        stdsellusd = round(np.std(sellusdtrans), 2)
-        volatsellusd = round(np.std(sellusdtrans) / np.mean(sellusdtrans), 2)
-
-    
+        
     for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),Transaction.usd_to_lbp==False).all():
         
         ratio = i.lbp_amount / i.usd_amount
         
         buyusdtrans.append(ratio)
         
-        total_usd_buy_volume += i.usd_amount
-        
-        total_lbp_sell_volume += i.lbp_amount
-        
-        
     if len(buyusdtrans) == 0:
         avgbuyusd = None
-        medbuyusd = None
-        stdbuyusd = None
-    
+        
     else:
         avgbuyusd = round(sum(buyusdtrans) / len(buyusdtrans),2)
-        medbuyusd = round(np.median(buyusdtrans), 2)
-        stdbuyusd = round(np.std(buyusdtrans), 2)
-        volatbuyusd = round(np.std(buyusdtrans) / np.mean(buyusdtrans), 2)
         
-  
+    
     rate = {
-        'sellusd': {
-            'average': avgsellusd,
-            'median': medsellusd,
-            'stddev': stdsellusd,
-            'volatility': volatsellusd,
-            'total_usd_volume': total_usd_sell_volume,
-            'total_lbp_volume': total_lbp_buy_volume,
-            'total_number_of_transactions': len(sellusdtrans)
-            
-            
-            
-            
-        },
-        'buyusd': {
-            'average': avgbuyusd,
-            'median': medbuyusd,
-            'stddev': stdbuyusd,
-            'volatility': volatbuyusd,
-            'total_usd_volume': total_usd_buy_volume,
-            'total_lbp_volume': total_lbp_sell_volume,
-            'total_number_of_transactions': len(buyusdtrans)
-           
-        }
+         'usd_to_lbp': avgsellusd ,'lbp_to_usd': avgbuyusd
     }
     
     return jsonify(rate), 200
-    
+
 
 @app.route('/newuser', methods=['POST'])
 def create_user():
@@ -226,7 +180,7 @@ def decode_token(token):
  
  
 
-
+#find average best time to sell and buy usd
 @app.route('/best_time', methods=['GET'])
 def gettime():
     # Parse the start and end dates
@@ -239,6 +193,7 @@ def gettime():
 
     # Loop through each day in the time period
     current_date = start_date
+    
     while current_date <= end_date:
         # Retrieve the transactions for the current day
         transactions = Transaction.query.filter(
@@ -251,24 +206,33 @@ def gettime():
         best_sell_rate = None
         best_buy_time = None
         best_buy_rate = None
+        
         for transaction in transactions:
+            
             if transaction.usd_to_lbp:
                 # Find the best time to sell USD
                 sell_rate = transaction.lbp_amount / transaction.usd_amount
+                
                 if best_sell_rate is None or sell_rate > best_sell_rate:
+                    
                     best_sell_rate = sell_rate
                     best_sell_time = transaction.added_date.time()
             else:
                 # Find the best time to buy USD
                 buy_rate = transaction.usd_amount / transaction.lbp_amount
+                
                 if best_buy_rate is None or buy_rate < best_buy_rate:
+                    
                     best_buy_rate = buy_rate
                     best_buy_time = transaction.added_date.time()
 
         # Add the best times to the lists
         if best_sell_time is not None:
+            
             best_sell_times.append(best_sell_time)
+            
         if best_buy_time is not None:
+            
             best_buy_times.append(best_buy_time)
 
         # Move to the next day
@@ -276,46 +240,52 @@ def gettime():
 
     # Calculate the average time of all the best sell times
     if len(best_sell_times) > 0:
+        
         total_sell_seconds = sum(time.hour * 3600 + time.minute * 60 + time.second for time in best_sell_times)
         average_sell_seconds = int(round(total_sell_seconds / len(best_sell_times)))
         average_sell_time = datetime.time(hour=average_sell_seconds // 3600, minute=(average_sell_seconds // 60) % 60, second=average_sell_seconds % 60)
         sell_result = average_sell_time.strftime('%H:%M:%S')
+        
     else:
         sell_result = 'No best sell time found.'
 
     # Calculate the average time of all the best buy times
     if len(best_buy_times) > 0:
+        
         total_buy_seconds = sum(time.hour * 3600 + time.minute * 60 + time.second for time in best_buy_times)
         average_buy_seconds = int(round(total_buy_seconds / len(best_buy_times)))
         average_buy_time = datetime.time(hour=average_buy_seconds // 3600, minute=(average_buy_seconds // 60) % 60, second=average_buy_seconds % 60)
         buy_result = average_buy_time.strftime('%H:%M:%S')
+        
     else:
+        
         buy_result = 'No best buy time found.'
 
     # Return the results as a JSON response
     return jsonify({'best_sell_time': sell_result, 'best_buy_time': buy_result})
 
 
-@app.route('/predict', methods=['GET'])
-def predict_future_values():
+
+
+#prediction (input number of days)
+@app.route('/predict/<int:days>', methods=['GET'])
+def predict_future_values(days):
     
     sellusdtrans = []
     buyusdtrans = []
-    days=7
+    
     
     START_DATE = datetime.datetime.now() - datetime.timedelta(days=100)
     END_DATE = datetime.datetime.now()
     
     for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),Transaction.usd_to_lbp==True).all():
-    
-        ratio = i.lbp_amount / i.usd_amount
         
+        ratio = i.lbp_amount / i.usd_amount
         sellusdtrans.append(ratio)
         
     for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),Transaction.usd_to_lbp==False).all():
-    
-        ratio = i.lbp_amount / i.usd_amount
         
+        ratio = i.lbp_amount / i.usd_amount
         buyusdtrans.append(ratio)
     
     X_sell = [[i] for i in range(len(sellusdtrans))]
@@ -330,7 +300,107 @@ def predict_future_values():
     future_X_buy = [[i] for i in range(len(buyusdtrans), len(buyusdtrans)+days)]
     
     future_sell = model_sell.predict(future_X_sell)
-    future_buy = model_buy.predict(future_X_buy)
+    future_sell_dates = [(END_DATE + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1, days+1)]
     
-    return jsonify({'future sell':future_sell.tolist(), 'future_buy':future_buy.tolist()})
+    future_buy = model_buy.predict(future_X_buy)
+    future_buy_dates = [(END_DATE + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1, days+1)]
+    
+    return jsonify({'future sell': [{'date': d, 'value': v} for d, v in zip(future_sell_dates, future_sell.tolist())], 'future_buy': [{'date': d, 'value': v} for d, v in zip(future_buy_dates, future_buy.tolist())]})
+
+#statistics 
+@app.route('/stats', methods=['GET'])
+def getstatistics():
+    
+    sellusdtrans = []
+    buyusdtrans = []
+    total_usd_sell_volume = 0
+    total_usd_buy_volume = 0
+    total_lbp_sell_volume = 0
+    total_lbp_buy_volume = 0
+    total_number_of_transactions = 0
+
+    START_DATE = datetime.datetime.now() - datetime.timedelta(days=100)
+    END_DATE = datetime.datetime.now()
+
+    for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE), Transaction.usd_to_lbp==True).all():
+        
+        ratio = i.lbp_amount / i.usd_amount
+        sellusdtrans.append(ratio)
+        total_usd_sell_volume += i.usd_amount
+        total_lbp_buy_volume += i.lbp_amount
+        total_number_of_transactions += 1
+
+    if len(sellusdtrans) == 0:
+        
+        avgsellusd = None
+        medsellusd = None
+        stdsellusd = None
+        volatsellusd = None
+        
+    else:
+        
+        avgsellusd = round(sum(sellusdtrans) / len(sellusdtrans), 2)
+        medsellusd = round(np.median(sellusdtrans), 2)
+        stdsellusd = round(np.std(sellusdtrans), 2)
+        volatsellusd = round(np.std(sellusdtrans) / np.mean(sellusdtrans), 2)
+
+    for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE), Transaction.usd_to_lbp==False).all():
+        
+        ratio = i.lbp_amount / i.usd_amount
+        buyusdtrans.append(ratio)
+        total_usd_buy_volume += i.usd_amount
+        total_lbp_sell_volume += i.lbp_amount
+        total_number_of_transactions += 1
+
+    if len(buyusdtrans) == 0:
+        
+        avgbuyusd = None
+        medbuyusd = None
+        stdbuyusd = None
+        volatbuyusd = None
+        
+    else:
+        avgbuyusd = round(sum(buyusdtrans) / len(buyusdtrans), 2)
+        medbuyusd = round(np.median(buyusdtrans), 2)
+        stdbuyusd = round(np.std(buyusdtrans), 2)
+        volatbuyusd = round(np.std(buyusdtrans) / np.mean(buyusdtrans), 2)
+
+    total_usd_volume = total_usd_sell_volume + total_usd_buy_volume
+    total_lbp_volume = total_lbp_sell_volume + total_lbp_buy_volume
+
+    stats = {
+        
+        'sellusd': {
+            
+            'average': avgsellusd,
+            'median': medsellusd,
+            'stddev': stdsellusd,
+            'volatility': volatsellusd,
+            'total_usd_volume': total_usd_sell_volume,
+            'total_lbp_volume': total_lbp_buy_volume,
+            'total_number_of_transactions': len(sellusdtrans)
+            
+        },
+        'buyusd': {
+            
+            'average': avgbuyusd,
+            'median': medbuyusd,
+            'stddev': stdbuyusd,
+            'volatility': volatbuyusd,
+            'total_usd_volume': total_usd_buy_volume,
+            'total_lbp_volume': total_lbp_sell_volume,
+            'total_number_of_transactions': len(buyusdtrans)
+            
+            },
+            'total': {
+            'total_usd_volume': total_usd_volume,
+            'total_lbp_volume': total_lbp_volume,
+            '% buy transactions': round((len(buyusdtrans) / total_number_of_transactions) * 100, 2),
+            '% sell transactions': round((len(sellusdtrans) / total_number_of_transactions) * 100, 2),
+            'total_number_of_transactions': total_number_of_transactions,
+            }
+            
+            }
+    
+    return jsonify(stats)
 
