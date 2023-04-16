@@ -14,7 +14,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import TextField from "@mui/material/TextField";
 import Select from '@mui/material/Select';
 import { MenuItem } from '@mui/material';
-import Statistics from '../statistics/Statistics';
+import {MdCurrencyExchange} from 'react-icons/md'
+import {BsCurrencyExchange} from 'react-icons/bs'
 
 
 
@@ -219,98 +220,110 @@ const ExchangeRates = () => {
             <div className="wrapper">
                 <Typography variant="h4">Today's Exchange Rate</Typography>
                 <p>LBP to USD Exchange Rate</p>
-                <Typography variant="h6">
-                    Buy USD: <span id="buy-usd-rate">{buyUsdRate != null ? buyUsdRate : "Not Available"}</span>
-                </Typography>
-                <Typography variant="h6">
-                    Sell USD: <span id="sell-usd-rate">{sellUsdRate != null ? sellUsdRate : "Not Available"}</span>
-                </Typography>
-                <hr />
-                <Calculator
-                    buyUsdRate={buyUsdRate}
-                    sellUsdRate={sellUsdRate}
-                />
-            </div>
 
-            <div className="wrapper">
-                <Typography variant="h5">Record a recent transaction</Typography>
-                <form name="transaction-entry">
-                    <div className="form-item">
-                        <TextField
-                            InputLabelProps={{
-                                style: { color: 'white' },
-                            }}
-                            InputProps={{
-                                style: { color: 'white' },
-                            }}
-                            fullWidth
-                            label="LBP Amount"
-                            type="number"
-                            value={lbpInput}
-                            onChange={({ target: { value } }) => setLbpInput(value)}
-                        />
-                    </div>
-                    <div className="form-item">
-                        <TextField
-                            InputLabelProps={{
-                                style: { color: 'white' },
-                            }}
-                            InputProps={{
-                                style: { color: 'white' },
-                            }}
-                            fullWidth
-                            label="USD Amount"
-                            type="number"
-                            value={usdInput}
-                            onChange={({ target: { value } }) => setUsdInput(value)}
-                        />
-                    </div>
-                    <Select id="transaction-type" style={{ color: 'white' }} defaultValue={transactionType} size="small" onChange={e => setTransactionType(e.target.value)}>
-                        <MenuItem value="usd-to-lbp">USD to LBP</MenuItem>
-                        <MenuItem value="lbp-to-usd">LBP to USD</MenuItem>
-                    </Select>
-                </form>
+                <div className="rates__card">
+                    <article className='rates__cards'>
+                        <BsCurrencyExchange className='rates__icon' />
+                        <h5>Buy USD</h5>
+                        <small><span id="buy-usd-rate">{buyUsdRate != null ? buyUsdRate : "Not Available"}</span></small>
+                    </article>
+                        
+                    <MdCurrencyExchange className="rates__icon"/>
+                    
 
-                <Button className='button' color="primary" variant="contained" onClick={addItem} style={{ marginTop: "20px" }}>Add</Button>
-                <p style={{ color: "red" }}>{errorMsg}</p>
-            </div>
-            <UserCredentialsDialog
-                open={authState === States.USER_CREATION}
-                onClose={() => setAuthState(States.PENDING)}
-                onSubmit={createUser}
-                title="Enter your credentials"
-                submitText="Sign Up"
-            />
-            <UserCredentialsDialog
-                open={authState === States.USER_LOG_IN}
-                onClose={() => setAuthState(States.PENDING)}
-                onSubmit={login}
-                title="Enter your credentials"
-                submitText="Login"
-            />
-            <Snackbar
-                elevation={6}
-                variant="filled"
-                open={authState === States.USER_AUTHENTICATED}
-                autoHideDuration={2000}
-                onClose={() => setAuthState(States.PENDING)}
-            >
-                <Alert severity="success">Success</Alert>
-            </Snackbar>
-
-            {userToken && (
-                <div className="wrapper">
-                    <Typography variant="h5">Your Transactions</Typography>
-                    <DataGrid
-                        columns={dataGridColumns}
-                        rows={userTransactions}
-                        autoHeight />
+                    <article className='rates__cards'>
+                        <BsCurrencyExchange className='rates__icon' />
+                        <h5>Sell USD</h5>
+                        <small><span id="sell-usd-rate">{sellUsdRate != null ? sellUsdRate : "Not Available"}</span></small>
+                    </article>
                 </div>
-            )}
-            <Statistics />
 
-        </div>
-    );
+
+                    <hr style={{ backgroundColor: "white", height: "1px" }} />
+                    <Calculator
+                        buyUsdRate={buyUsdRate}
+                        sellUsdRate={sellUsdRate}
+                    />
+                </div>
+
+                <div className="wrapper">
+                    <Typography variant="h5">Record a recent transaction</Typography>
+                    <form name="transaction-entry">
+                        <div className="form-item">
+                            <TextField
+                                InputLabelProps={{
+                                    style: { color: 'white' },
+                                }}
+                                InputProps={{
+                                    style: { color: 'white' },
+                                }}
+                                fullWidth
+                                label="LBP Amount"
+                                type="number"
+                                value={lbpInput}
+                                onChange={({ target: { value } }) => setLbpInput(value)}
+                            />
+                        </div>
+                        <div className="form-item">
+                            <TextField
+                                InputLabelProps={{
+                                    style: { color: 'white' },
+                                }}
+                                InputProps={{
+                                    style: { color: 'white' },
+                                }}
+                                fullWidth
+                                label="USD Amount"
+                                type="number"
+                                value={usdInput}
+                                onChange={({ target: { value } }) => setUsdInput(value)}
+                            />
+                        </div>
+                        <Select id="transaction-type" style={{ color: 'white' }} defaultValue={transactionType} size="small" onChange={e => setTransactionType(e.target.value)}>
+                            <MenuItem value="usd-to-lbp">USD to LBP</MenuItem>
+                            <MenuItem value="lbp-to-usd">LBP to USD</MenuItem>
+                        </Select>
+                    </form>
+
+                    <Button className='button' color="primary" variant="contained" onClick={addItem} style={{ marginTop: "20px" }}>Add</Button>
+                    <p style={{ color: "red" }}>{errorMsg}</p>
+                </div>
+                <UserCredentialsDialog
+                    open={authState === States.USER_CREATION}
+                    onClose={() => setAuthState(States.PENDING)}
+                    onSubmit={createUser}
+                    title="Enter your credentials"
+                    submitText="Sign Up"
+                />
+                <UserCredentialsDialog
+                    open={authState === States.USER_LOG_IN}
+                    onClose={() => setAuthState(States.PENDING)}
+                    onSubmit={login}
+                    title="Enter your credentials"
+                    submitText="Login"
+                />
+                <Snackbar
+                    elevation={6}
+                    variant="filled"
+                    open={authState === States.USER_AUTHENTICATED}
+                    autoHideDuration={2000}
+                    onClose={() => setAuthState(States.PENDING)}
+                >
+                    <Alert severity="success">Success</Alert>
+                </Snackbar>
+
+                {userToken && (
+                    <div className="wrapper">
+                        <Typography variant="h5">Your Transactions</Typography>
+                        <DataGrid
+                            columns={dataGridColumns}
+                            rows={userTransactions}
+                            autoHeight />
+                    </div>
+                )}
+
+            </div>
+            );
 }
 
-export default ExchangeRates
+            export default ExchangeRates

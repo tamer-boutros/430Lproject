@@ -110,6 +110,62 @@ body {
   justify-content: space-between;
  }
 
+ .rates__card {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+.rates__cards {
+  background: var(--color-bg-variant);
+  border: 1px solid var(--color-light);
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.rates__icon {
+  color:var(--color-bg-light);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  justify-self: center;
+  align-self: center;
+
+}
+
+.rates__cards:hover {
+  background: var(--color-light);
+  border-color: var(--color-light);
+  cursor: default;
+  content: var(--color-bg-variant)
+}
+
+.rates__cards h5 {
+  font-size: 1.2rem;
+}
+
+
+.rates__cards small {
+  font-size: 1rem;
+  color: var(--color-light);
+}
+
+.rates__cards:hover h5 {
+  color: var(--color-bg-variant);
+}
+
+
+.rates__cards:hover small {
+  color: var(--color-bg-variant);
+}
+
+.rates__cards:hover .rates__icon {
+  color:var(--color-bg-variant);
+} 
+
 
 
 @media only screen and (min-width: 1400px) {
