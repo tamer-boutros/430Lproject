@@ -191,6 +191,7 @@ const ExchangeRates = () => {
                     <div style={{ display: "flex" }}>
                         <Typography variant="h5" style={{ marginRight: "20px" }} >Exchange Rate App</Typography>
                         <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#statistics">Statistics</a>
+                        <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#predictions">Predictions</a>
                     </div>
 
                     <div>

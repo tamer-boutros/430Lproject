@@ -1,0 +1,66 @@
+.predictions__card {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 1.5rem;
+}
+
+.predictions__cards {
+    background: var(--color-bg-variant);
+    border: 1px solid var(--color-light);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.predictions__cards:hover {
+    background: var(--color-light);
+    border-color: var(--color-light);
+    cursor: default;
+    content: var(--color-bg-variant)
+}
+
+.predictions__icon {
+    color:var(--color-bg-light);
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+
+}
+
+.predictions__cards h5 {
+    font-size: 0.9rem;
+}
+
+
+.predictions__cards small {
+    font-size: 0.7rem;
+    color: var(--color-light);
+}
+
+.predictions__cards:hover h5 {
+    color: var(--color-bg-variant);
+}
+
+
+.predictions__cards:hover small {
+    color: var(--color-bg-variant);
+}
+
+.predictions__cards:hover .predictions__icon {
+    color:var(--color-bg-variant);
+}
+
+
+.predictions__chart__card {
+    display: grid;
+    grid-template-columns: repeat(1,1fr);
+}
+
+.predictions__chart__cards {
+    background: var(--color-bg-variant);
+    border: 1px solid var(--color-light);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    transition: var(--transition);
+}
