@@ -91,7 +91,7 @@ const ExchangeRates = () => {
 
 
     function fetchRates() {
-        fetch(`${SERVER_URL}/exchangeRate`)
+        fetch(`${SERVER_URL}/exchangerate`)
             .then(response => response.json())
             .then(data => {
                 setBuyUsdRate(data.lbp_to_usd);
@@ -148,7 +148,7 @@ const ExchangeRates = () => {
     fetchUserTransactions();
 
     function login(username, password) {
-        return fetch(`${SERVER_URL}/authentication`, {
+        return fetch(`${SERVER_URL}/authenticate`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -167,7 +167,7 @@ const ExchangeRates = () => {
     }
 
     function createUser(username, password) {
-        return fetch(`${SERVER_URL}/user`, {
+        return fetch(`${SERVER_URL}/newuser`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -285,7 +285,7 @@ const ExchangeRates = () => {
                         </Select>
                     </form>
 
-                    <Button className='button' color="primary" variant="contained" onClick={addItem} style={{ marginTop: "20px" }}>Add</Button>
+                    <Button className='button' color="primary" variant="contained" onClick={addItem} style={{ marginTop: "20px", backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold" }}>Add</Button>
                     <p style={{ color: "red" }}>{errorMsg}</p>
                 </div>
                 <UserCredentialsDialog
@@ -316,6 +316,7 @@ const ExchangeRates = () => {
                     <div className="wrapper">
                         <Typography variant="h5">Your Transactions</Typography>
                         <DataGrid
+                            style={{ color: 'white' }}
                             columns={dataGridColumns}
                             rows={userTransactions}
                             autoHeight />

@@ -52,7 +52,7 @@ export default function Calculator(
         <MenuItem value="lbp-to-usd">LBP to USD</MenuItem>
       </Select>
       <div>
-        <Button id="calculate-button" color='primary' variant='contained' size='small' style={{ marginTop: "20px" }} onClick={() => calculate()}>calculate</Button>
+        <Button id="calculate-button"  variant='contained' size='small' style={{ marginTop: "20px", backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold" }} onClick={() => calculate()}>calculate</Button>
       </div>
       <div>
         <Typography variant="h5" style={{ "font-weight": "bold" }} >{convertedAmount}</Typography>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
 * {
     margin: 0;
@@ -35,7 +35,7 @@ html {
 }
 
 body {
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Roboto', sans-serif;
     background-color: var(--color-bg);
     color: var(--color-white);
     line-height: 1.7;
@@ -43,7 +43,7 @@ body {
 }
 
 .nav_anchor{
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: var(--color-white);
   font-size: large;
 }
