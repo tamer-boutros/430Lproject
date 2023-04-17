@@ -1,22 +1,110 @@
 import React, { useEffect, useState } from 'react'
 import '../App.css'
 import './Predictions.css'
-import {BiTimeFive} from 'react-icons/bi'
+import { BiTimeFive } from 'react-icons/bi'
 import Typography from '@mui/material/Typography'
-import Chart from './ChartPrediction'
 import TextField from '@mui/material/TextField'
+import { Button } from '@mui/material'
+import Chart from "react-apexcharts";
 
-
+var SERVER_URL = "http://127.0.0.1:5000"
 
 const Predictions = () => {
-    var SERVER_URL = "http://127.0.0.1:5000"
 
 
     let [predictionDays, setPredictionDays] = useState(3);
     let [bestBuyTime, setBestBuyTime] = useState();
     let [bestSellTime, setBestSellTime] = useState();
+    let [futureBuy, setFutureBuy] = useState();
+    let [futureSell, setFutureSell] = useState();
+    const [chartDataBuy, setChartDataBuy] = useState({
+        options: {
+            chart: {
+                id: "basic-line",
+                foreColor: "#ffffff",
+                background: "#2c2c6c",
+            },
+            tooltip: {
+                theme: 'dark',
+                style: {
+                    colors: ['#ffffff'],
+                },
+            },
+            xaxis: {
+                categories: [1, 2, 3],
+                labels: {
+                    style: {
+                        colors: "#ffffff"
+                    }
+                }
+            },
+            yaxis: {
+                labels: {
+                    style: {
+                        colors: "#ffffff"
+                    }
+                }
+            },
+            title: {
+                text: "Future Buy",
+                align: 'left',
+                style: {
+                    color: '#ffffff' // set the color of the title to white
+                }
+            },
+        },
+        series: [
+            {
+                name: "Future Buy",
+                data: [0, 0, 0]
+            }
+        ]
+    });
+    const [chartDataSell, setChartDataSell] = useState({
+        options: {
+            chart: {
+                id: "basic-line",
+                foreColor: "#ffffff",
+                background: "#2c2c6c",
+            },
+            tooltip: {
+                theme: 'dark',
+                style: {
+                    colors: ['#ffffff'],
+                },
+            },
+            xaxis: {
+                categories: [1, 2, 3],
+                labels: {
+                    style: {
+                        colors: "#ffffff"
+                    }
+                }
+            },
+            yaxis: {
+                labels: {
+                    style: {
+                        colors: "#ffffff"
+                    }
+                }
+            },
+            title: {
+                text: "Future Sell",
+                align: 'left',
+                style: {
+                    color: '#ffffff' // set the color of the title to white
+                }
+            },
+        },
+        series: [
+            {
+                name: "Future Sell",
+                data: [0, 0, 0]
+            }
+        ]
+    });
 
-        function fetchBestTime() {
+    function fetchBestTime() {
         fetch(`${SERVER_URL}/best_time`)
             .then(response => response.json())
             .then(data => {
@@ -25,6 +113,111 @@ const Predictions = () => {
             });
     }
     useEffect(fetchBestTime, []);
+
+    function fetchPrediction() {
+        fetch(`${SERVER_URL}/predict/${predictionDays}`)
+            .then(response => response.json())
+            .then(data => {
+                setFutureBuy(data['future_buy']);
+                setFutureSell(data['future sell']);
+                console.log(predictionDays)
+            });
+    }
+    useEffect(fetchPrediction, [predictionDays]);
+
+
+     function updateGraph() {
+        setChartDataBuy(
+            {
+                options: {
+                    chart: {
+                        id: "basic-line",
+                        foreColor: "#ffffff",
+                        background: "#2c2c6c",
+                    },
+                    tooltip: {
+                        theme: 'dark',
+                        style: {
+                            colors: ['#ffffff'],
+                        },
+                    },
+                    xaxis: {
+                        categories: futureBuy.map(item => item.date),
+                        labels: {
+                            style: {
+                                colors: "#ffffff"
+                            }
+                        }
+                    },
+                    yaxis: {
+                        labels: {
+                            style: {
+                                colors: "#ffffff"
+                            }
+                        }
+                    },
+                    title: {
+                        text: "Future Buy",
+                        align: 'left',
+                        style: {
+                            color: '#ffffff' // set the color of the title to white
+                        }
+                    },
+                },
+                series: [
+                    {
+                        name: "Future Buy",
+                        data: futureBuy.map(item => item.value)
+                    }
+                ]
+            }
+        )
+        setChartDataSell(
+            {
+                options: {
+                    chart: {
+                        id: "basic-line",
+                        foreColor: "#ffffff",
+                        background: "#2c2c6c",
+                    },
+                    tooltip: {
+                        theme: 'dark',
+                        style: {
+                            colors: ['#ffffff'],
+                        },
+                    },
+                    xaxis: {
+                        categories: futureSell.map(item => item.date),
+                        labels: {
+                            style: {
+                                colors: "#ffffff"
+                            }
+                        }
+                    },
+                    yaxis: {
+                        labels: {
+                            style: {
+                                colors: "#ffffff"
+                            }
+                        }
+                    },
+                    title: {
+                        text: "Future Sell",
+                        align: 'left',
+                        style: {
+                            color: '#ffffff' // set the color of the title to white
+                        }
+                    },
+                },
+                series: [
+                    {
+                        name: "Future Sell",
+                        data: futureSell.map(item => item.value)
+                    }
+                ]
+            }
+        )
+    }
 
     return (
         <div id="predictions" className='wrapper'>
@@ -42,28 +235,38 @@ const Predictions = () => {
                 </article>
             </div>
             <div className="form-item">
-                            <TextField
-                                InputLabelProps={{
-                                    style: { color: 'white' },
-                                }}
-                                InputProps={{
-                                    style: { color: 'white' },
-                                }}
-                                fullWidth
-                                label="Prediction Days"
-                                type="number"
-                                value={predictionDays}
-                                onChange={({ target: { value } }) => setPredictionDays(value)}
-                            />
-                        </div>
-            <div className="predictions__chart__cards">
-                <Chart/>
+                <TextField
+                    InputLabelProps={{
+                        style: { color: 'white' },
+                    }}
+                    InputProps={{
+                        style: { color: 'white' },
+                    }}
+                    fullWidth
+                    label="Prediction Days"
+                    type="number"
+                    value={predictionDays}
+                    onChange={({ target: { value } }) => setPredictionDays(value)}
+                />
+                <Button className='button' color="primary" variant="contained" onClick={updateGraph} style={{ marginTop: "20px", backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold" }}>Fetch Predictions</Button>
+
             </div>
             <div className="predictions__chart__cards">
-                <Chart/>
+                <Chart
+                    options={chartDataBuy.options}
+                    series={chartDataBuy.series}
+                    type="line"
+                />
+            </div>
+            <div className="predictions__chart__cards">
+                <Chart
+                    options={chartDataSell.options}
+                    series={chartDataSell.series}
+                    type="line"
+                />
             </div>
         </div>
-    ) 
+    )
 }
 
 export default Predictions

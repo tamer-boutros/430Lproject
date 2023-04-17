@@ -63,4 +63,14 @@
     padding: 2rem;
     text-align: center;
     transition: var(--transition);
+    margin-bottom: 1rem;
 }
+/*from https://github.com/apexcharts/vue-apexcharts/issues/114
+2hrs to fix it :)
+*/
+.apexcharts-menu{
+    background-color: var(--color-white)!important;
+    color: var(--color-bg-variant)!important;
+    border: 0px;
+    }
+  
