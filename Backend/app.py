@@ -267,13 +267,11 @@ def gettime():
 
 
 
-#prediction (input number of days)
 @app.route('/predict/<int:days>', methods=['GET'])
 def predict_future_values(days):
     
     sellusdtrans = []
     buyusdtrans = []
-    
     
     START_DATE = datetime.datetime.now() - datetime.timedelta(days=100)
     END_DATE = datetime.datetime.now()
@@ -301,11 +299,14 @@ def predict_future_values(days):
     
     future_sell = model_sell.predict(future_X_sell)
     future_sell_dates = [(END_DATE + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1, days+1)]
+    future_sell_rounded = [round(val, 2) for val in future_sell.tolist()]
     
     future_buy = model_buy.predict(future_X_buy)
     future_buy_dates = [(END_DATE + datetime.timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1, days+1)]
+    future_buy_rounded = [round(val, 2) for val in future_buy.tolist()]
     
-    return jsonify({'future sell': [{'date': d, 'value': v} for d, v in zip(future_sell_dates, future_sell.tolist())], 'future_buy': [{'date': d, 'value': v} for d, v in zip(future_buy_dates, future_buy.tolist())]})
+    return jsonify({'future_sell': [{'date': d, 'value': v} for d, v in zip(future_sell_dates, future_sell_rounded)], 
+                    'future_buy': [{'date': d, 'value': v} for d, v in zip(future_buy_dates, future_buy_rounded)]})
 
 #statistics 
 @app.route('/stats', methods=['GET'])
