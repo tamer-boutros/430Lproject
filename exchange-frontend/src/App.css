@@ -166,6 +166,15 @@ body {
   color:var(--color-bg-variant);
 } 
 
+.icon_button_design{
+  color: white;
+}
+
+.MuiTooltip-tooltip {
+  background-color: white!important;
+  color: var(--color-bg-variant)!important;
+}
+
 
 
 @media only screen and (min-width: 1400px) {

@@ -5,7 +5,9 @@ import Select from '@mui/material/Select'
 import { useState } from 'react';
 import '../App.css'
 import './Calculator.css'
-import { MenuItem } from '@mui/material';
+import { MenuItem, Tooltip } from '@mui/material';
+import {AiOutlineInfoCircle} from 'react-icons/ai'
+import {IconButton} from '@mui/material';
 
 
 
@@ -30,7 +32,14 @@ export default function Calculator(
   }
   return (
     <div>
-      <Typography variant="h5" style={{ "font-weight": "bold" }} >Rate Calculator</Typography>
+      <Typography variant="h5" style={{ "font-weight": "bold" }} >
+      <span>Rate Calculator </span>
+      <Tooltip title="the following is a rate calculator: You enter a specific amount, choose what the conversion type, and press calculate to get your result">
+        <IconButton >
+          <AiOutlineInfoCircle className='icon_button_design'/>
+        </IconButton>
+      </Tooltip>
+      </Typography>
       <div className="form-item">
         <TextField
           InputLabelProps={{
