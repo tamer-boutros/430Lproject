@@ -6,9 +6,13 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import { Button } from '@mui/material'
 import Chart from "react-apexcharts";
-import {AiOutlineInfoCircle} from 'react-icons/ai'
-import {IconButton} from '@mui/material';
-import {Tooltip} from '@mui/material'
+import { AiOutlineInfoCircle } from 'react-icons/ai'
+import { IconButton } from '@mui/material';
+import { Tooltip } from '@mui/material'
+import Tab from '@mui/material/Tab';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
 
 var SERVER_URL = "http://127.0.0.1:5000"
 
@@ -106,6 +110,12 @@ const Predictions = () => {
             }
         ]
     });
+    //from material ui
+    const [tabValue, setTabValue] = useState(0);
+
+    const handleChange = (event, newValue) => {
+        setTabValue(newValue);
+    };
 
     function fetchBestTime() {
         fetch(`${SERVER_URL}/best_time`)
@@ -129,7 +139,7 @@ const Predictions = () => {
     useEffect(fetchPrediction, [predictionDays]);
 
 
-     function updateGraph() {
+    function updateGraph() {
         setChartDataBuy(
             {
                 options: {
@@ -227,11 +237,11 @@ const Predictions = () => {
             <Typography variant="h5">
                 <span>Best Time to Buy and Sell</span>
                 <Tooltip title="the following is a prediction section for the rates, and their best time to buy and sell: You can also enter a specific amount of days and see what would the rates look like">
-        <IconButton >
-          <AiOutlineInfoCircle className='icon_button_design'/>
-        </IconButton>
-      </Tooltip>
-                </Typography>
+                    <IconButton >
+                        <AiOutlineInfoCircle className='icon_button_design' />
+                    </IconButton>
+                </Tooltip>
+            </Typography>
             <div className="predictions__card">
                 <article className='predictions__cards'>
                     <BiTimeFive className='predictions__icon' />
@@ -261,20 +271,38 @@ const Predictions = () => {
                 <Button className='button' color="primary" variant="contained" onClick={updateGraph} style={{ marginTop: "20px", backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold" }}>Fetch Predictions</Button>
 
             </div>
-            <div className="predictions__chart__cards">
-                <Chart
-                    options={chartDataBuy.options}
-                    series={chartDataBuy.series}
-                    type="line"
-                />
-            </div>
-            <div className="predictions__chart__cards">
-                <Chart
-                    options={chartDataSell.options}
-                    series={chartDataSell.series}
-                    type="line"
-                />
-            </div>
+            <TabContext value={tabValue}>
+                <TabList 
+                    onChange={handleChange}
+                    textColor="info"
+                    indicatorColor="primary"
+                    centered
+                 >
+                    <Tab label="Graph Buy Prediction" value="1" />
+                    <Tab label="Graph Buy Prediction" value="2" />
+                </TabList>
+                <TabPanel value='1'>
+                    <div className="predictions__chart__cards">
+                        <Chart
+                            options={chartDataBuy.options}
+                            series={chartDataBuy.series}
+                            type="line"
+                        />
+
+                    </div>
+                </TabPanel>
+
+                <TabPanel value='2'>
+                    <div className="predictions__chart__cards">
+                        <Chart
+                            options={chartDataSell.options}
+                            series={chartDataSell.series}
+                            type="line"
+                        />
+                    </div>
+                </TabPanel>
+
+            </TabContext>
         </div>
     )
 }
