@@ -16,6 +16,8 @@ import Select from '@mui/material/Select';
 import { MenuItem } from '@mui/material';
 import {MdCurrencyExchange} from 'react-icons/md'
 import {BsCurrencyExchange} from 'react-icons/bs'
+import Tooltip from '@mui/material/Tooltip';
+
 
 
 
@@ -223,20 +225,23 @@ const ExchangeRates = () => {
                 <p>LBP to USD Exchange Rate</p>
 
                 <div className="rates__card">
+                    <Tooltip title="the following rate is based on the transactions entered by the users in the last 100 days">
                     <article className='rates__cards'>
                         <BsCurrencyExchange className='rates__icon' />
                         <h5>Buy USD</h5>
                         <small><span id="buy-usd-rate">{buyUsdRate != null ? buyUsdRate : "Not Available"}</span></small>
                     </article>
+                    </Tooltip>
                         
                     <MdCurrencyExchange className="rates__icon"/>
                     
-
+                    <Tooltip title="the following rate is based on the transactions entered by the users in the last 100 days">
                     <article className='rates__cards'>
                         <BsCurrencyExchange className='rates__icon' />
                         <h5>Sell USD</h5>
                         <small><span id="sell-usd-rate">{sellUsdRate != null ? sellUsdRate : "Not Available"}</span></small>
                     </article>
+                    </Tooltip>
                 </div>
 
 

@@ -6,6 +6,9 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import { Button } from '@mui/material'
 import Chart from "react-apexcharts";
+import {AiOutlineInfoCircle} from 'react-icons/ai'
+import {IconButton} from '@mui/material';
+import {Tooltip} from '@mui/material'
 
 var SERVER_URL = "http://127.0.0.1:5000"
 
@@ -221,7 +224,14 @@ const Predictions = () => {
 
     return (
         <div id="predictions" className='wrapper'>
-            <Typography variant="h5">Best Time to Buy and Sell</Typography>
+            <Typography variant="h5">
+                <span>Best Time to Buy and Sell</span>
+                <Tooltip title="the following is a prediction section for the rates, and their best time to buy and sell: You can also enter a specific amount of days and see what would the rates look like">
+        <IconButton >
+          <AiOutlineInfoCircle className='icon_button_design'/>
+        </IconButton>
+      </Tooltip>
+                </Typography>
             <div className="predictions__card">
                 <article className='predictions__cards'>
                     <BiTimeFive className='predictions__icon' />
