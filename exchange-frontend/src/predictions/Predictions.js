@@ -132,8 +132,7 @@ const Predictions = () => {
             .then(response => response.json())
             .then(data => {
                 setFutureBuy(data['future_buy']);
-                setFutureSell(data['future sell']);
-                console.log(predictionDays)
+                setFutureSell(data['future_sell']);
             });
     }
     useEffect(fetchPrediction, [predictionDays]);
@@ -266,7 +265,17 @@ const Predictions = () => {
                     label="Prediction Days"
                     type="number"
                     value={predictionDays}
-                    onChange={({ target: { value } }) => setPredictionDays(value)}
+                    onChange={({ target: { value } }) => {
+                        if (value<0) {
+                            setPredictionDays(3)
+                        }
+                        else{
+                            setPredictionDays(value)
+                        }
+                    }}
+                    inputProps={{
+                        min: 0,
+                      }}
                 />
                 <Button className='button' color="primary" variant="contained" onClick={updateGraph} style={{ marginTop: "20px", backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold" }}>Fetch Predictions</Button>
 
@@ -279,7 +288,7 @@ const Predictions = () => {
                     centered
                  >
                     <Tab label="Graph Buy Prediction" value="1" />
-                    <Tab label="Graph Buy Prediction" value="2" />
+                    <Tab label="Graph Sell Prediction" value="2" />
                 </TabList>
                 <TabPanel value='1'>
                     <div className="predictions__chart__cards">

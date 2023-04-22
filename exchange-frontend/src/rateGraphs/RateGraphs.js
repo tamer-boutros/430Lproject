@@ -242,7 +242,17 @@ const RateGraphs = () => {
                     label="Graph Days"
                     type="number"
                     value={graphDays}
-                    onChange={({ target: { value } }) => setgraphDays(value)}
+                    onChange={({ target: { value } }) => {
+                        if (value<0) {
+                            setgraphDays(10)
+                        }
+                        else{
+                            setgraphDays(value)
+                        }
+                    }}
+                    inputProps={{
+                        min: 0,
+                      }}
                 />
                 <Button className='button' color="primary" variant="contained" onClick={updateGraph} style={{ marginTop: "20px", backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold" }}>Fetch Rates</Button>
 
@@ -255,7 +265,7 @@ const RateGraphs = () => {
                     centered
                  >
                     <Tab label="Graph Buy Rates" value="1" />
-                    <Tab label="Graph Buy Rates" value="2" />
+                    <Tab label="Graph Sell Rates" value="2" />
                 </TabList>
                 <TabPanel value='1'>
                     <div className="rates__chart__cards">

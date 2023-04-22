@@ -185,6 +185,7 @@ const ExchangeRates = () => {
         setUserToken(null);
         clearUserToken()
     }
+    
 
     return (
         <div>
@@ -268,7 +269,17 @@ const ExchangeRates = () => {
                                 label="LBP Amount"
                                 type="number"
                                 value={lbpInput}
-                                onChange={({ target: { value } }) => setLbpInput(value)}
+                                onChange={({ target: { value } }) => {
+                                    if (value<0) {
+                                        setLbpInput("")
+                                    }
+                                    else{
+                                        setLbpInput(value)
+                                    }
+                                }}
+                                inputProps={{
+                                    min: 0,
+                                  }}
                             />
                         </div>
                         <div className="form-item">
@@ -283,7 +294,18 @@ const ExchangeRates = () => {
                                 label="USD Amount"
                                 type="number"
                                 value={usdInput}
-                                onChange={({ target: { value } }) => setUsdInput(value)}
+                                onChange={({ target: { value } }) => {
+                                    if (value<0) {
+                                        setUsdInput("")
+                                    }
+                                    else{
+                                        setUsdInput(value)
+                                    }
+                                }}
+                                inputProps={{
+                                    min: 0,
+                                  }}
+
                             />
                         </div>
                         <Select id="transaction-type" style={{ color: 'white' }} defaultValue={transactionType} size="small" onChange={e => setTransactionType(e.target.value)}>
