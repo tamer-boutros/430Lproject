@@ -35,8 +35,9 @@ bcrypt = Bcrypt(app)
 
 app.app_context().push()
 
-from .model.user import User, user_schema
+from .model.user import User, user_schema, Friend, friend_schema
 from .model.transaction import Transaction, transaction_schema
+
 
    
 @app.route('/transaction', methods=['POST'])
@@ -308,6 +309,10 @@ def predict_future_values(days):
     return jsonify({'future_sell': [{'date': d, 'value': v} for d, v in zip(future_sell_dates, future_sell_rounded)], 
                     'future_buy': [{'date': d, 'value': v} for d, v in zip(future_buy_dates, future_buy_rounded)]})
 
+
+
+
+
 #statistics 
 @app.route('/stats', methods=['GET'])
 def getstatistics():
@@ -406,8 +411,10 @@ def getstatistics():
     return jsonify(stats)
 
 
+#exchange rates
 @app.route('/getrates/<int:num_days>', methods=['GET'])
 def getexchangerates(num_days):
+    
     sellusdtrans = []
     buyusdtrans = []
     
@@ -415,29 +422,101 @@ def getexchangerates(num_days):
     START_DATE = END_DATE - datetime.timedelta(days=num_days)
     
     for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE), Transaction.usd_to_lbp==True).all():
+        
         ratio = i.lbp_amount / i.usd_amount
         sellusdtrans.append((i.added_date.date(), ratio))
     
     for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE), Transaction.usd_to_lbp==False).all():
+        
         ratio = i.lbp_amount / i.usd_amount
         buyusdtrans.append((i.added_date.date(), ratio))
     
     sell_dict = {}
+    
     for date, ratio in sellusdtrans:
+        
         if date in sell_dict:
+            
             sell_dict[date].append(ratio)
+            
         else:
+            
             sell_dict[date] = [ratio]
     
     buy_dict = {}
+    
     for date, ratio in buyusdtrans:
+        
         if date in buy_dict:
+            
             buy_dict[date].append(ratio)
+            
         else:
+            
             buy_dict[date] = [ratio]
     
-    avgsellusd = {date.strftime('%Y-%m-%d'): round(sum(ratios)/len(ratios), 2) for date, ratios in sell_dict.items()}
-    avgbuyusd = {date.strftime('%Y-%m-%d'): round(sum(ratios)/len(ratios), 2) for date, ratios in buy_dict.items()}
+    avgsell = [{'date': date.strftime('%Y-%m-%d'), 'value': round(sum(ratios)/len(ratios), 2)} for date, ratios in sell_dict.items()]
+    avgbuy = [{'date': date.strftime('%Y-%m-%d'), 'value': round(sum(ratios)/len(ratios), 2)} for date, ratios in buy_dict.items()]
     
-    return jsonify({'avgsellusd': avgsellusd, 'avgbuyusd': avgbuyusd}), 200
+    return jsonify({'avg_sell': avgsell, 'avg_buy': avgbuy}), 200
 
+
+
+
+
+
+
+
+
+#Friend Management
+@app.route('/users/friends', methods=['GET'])
+def get_all_friends():
+    user_id = decode_token(extract_auth_token(request))
+    if not user_id:
+        abort(403)
+    friends = Friend.query.filter_by(user_id=user_id)
+    return jsonify(friend_schema.dump(friends))
+
+
+@app.route('/users/add_friend', methods=['POST'])
+def add_friend():
+    user_id = decode_token(extract_auth_token(request))
+    if not user_id:
+        abort(403)
+    friend_name = request.json['friend_name']
+    friend = User.query.filter_by(user_name=friend_name).first()
+    if not friend:
+        return jsonify({'message': 'Friend not found'}), 404
+    new_friend = Friend(user_id, friend.id, 'pending')
+    db.session.add(new_friend)
+    db.session.commit()
+    return friend_schema.jsonify(new_friend), 201
+
+
+@app.route('/friends/<int:friend_id>', methods=['PUT'])
+def accept_reject_friend(friend_id):
+    user_id = decode_token(extract_auth_token(request))
+    if not user_id:
+        abort(403)
+    friend = Friend.query.get(friend_id)
+    if not friend:
+        return jsonify({'message': 'Friend request not found'}), 404
+    if friend.user_id != user_id:
+        abort(403)
+    if 'status' not in request.json:
+        return jsonify({'message': 'Missing status parameter'}), 400
+    status = request.json['status']
+    if status not in ['accepted', 'rejected']:
+        return jsonify({'message': 'Invalid status parameter'}), 400
+    friend.status = status
+    db.session.commit()
+    return friend_schema.jsonify(friend), 200
+
+
+@app.route('/users/friend_requests', methods=['GET'])
+def get_friend_requests():
+    user_id = decode_token(extract_auth_token(request))
+    if not user_id:
+        abort(403)
+    friend_requests = Friend.query.filter_by(user_id=user_id, status='pending')
+    return jsonify(friend_schema.dump(friend_requests, many=True))
