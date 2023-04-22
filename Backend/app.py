@@ -405,3 +405,39 @@ def getstatistics():
     
     return jsonify(stats)
 
+
+@app.route('/getrates/<int:num_days>', methods=['GET'])
+def getexchangerates(num_days):
+    sellusdtrans = []
+    buyusdtrans = []
+    
+    END_DATE = datetime.datetime.now()
+    START_DATE = END_DATE - datetime.timedelta(days=num_days)
+    
+    for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE), Transaction.usd_to_lbp==True).all():
+        ratio = i.lbp_amount / i.usd_amount
+        sellusdtrans.append((i.added_date.date(), ratio))
+    
+    for i in Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE), Transaction.usd_to_lbp==False).all():
+        ratio = i.lbp_amount / i.usd_amount
+        buyusdtrans.append((i.added_date.date(), ratio))
+    
+    sell_dict = {}
+    for date, ratio in sellusdtrans:
+        if date in sell_dict:
+            sell_dict[date].append(ratio)
+        else:
+            sell_dict[date] = [ratio]
+    
+    buy_dict = {}
+    for date, ratio in buyusdtrans:
+        if date in buy_dict:
+            buy_dict[date].append(ratio)
+        else:
+            buy_dict[date] = [ratio]
+    
+    avgsellusd = {date.strftime('%Y-%m-%d'): round(sum(ratios)/len(ratios), 2) for date, ratios in sell_dict.items()}
+    avgbuyusd = {date.strftime('%Y-%m-%d'): round(sum(ratios)/len(ratios), 2) for date, ratios in buy_dict.items()}
+    
+    return jsonify({'avgsellusd': avgsellusd, 'avgbuyusd': avgbuyusd}), 200
+
