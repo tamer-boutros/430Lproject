@@ -13,7 +13,7 @@ class user_schema(ma.Schema):
     class Meta:
         fields = ("id", "user_name")
         model = User
-user_schema = user_schema()
+user_schema = user_schema(many=True)
 
 
 # Friend model
@@ -32,6 +32,7 @@ class Friend(db.Model):
 class FriendSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Friend
+        fields = ('id', 'user_id', 'friend_id', 'status', 'user_name')
 
 friend_schema = FriendSchema()
 friends_schema = FriendSchema(many=True)
