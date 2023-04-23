@@ -52,7 +52,17 @@ export default function Calculator(
           id='text-field-amount'
           label="Amount"
           type="number"
-          onChange={e => setEnteredAmount(e.target.value)}
+          onChange={({ target: { value } }) => {
+            if (value<0) {
+              setEnteredAmount("")
+            }
+            else{
+              setEnteredAmount(value)
+            }
+        }}
+        inputProps={{
+            min: 0,
+          }}
         />
       </div>
 

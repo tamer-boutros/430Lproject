@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import '../App.css'
-import './Predictions.css'
-import { BiTimeFive } from 'react-icons/bi'
+import './RateGraphs.css'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import { Button } from '@mui/material'
@@ -16,14 +15,12 @@ import TabPanel from '@mui/lab/TabPanel';
 
 var SERVER_URL = "http://127.0.0.1:5000"
 
-const Predictions = () => {
+const RateGraphs = () => {
 
 
-    let [predictionDays, setPredictionDays] = useState(3);
-    let [bestBuyTime, setBestBuyTime] = useState();
-    let [bestSellTime, setBestSellTime] = useState();
-    let [futureBuy, setFutureBuy] = useState();
-    let [futureSell, setFutureSell] = useState();
+    let [graphDays, setgraphDays] = useState(3);
+    let [pastBuy, setpastBuy] = useState();
+    let [pastSell, setpastSell] = useState();
     const [chartDataBuy, setChartDataBuy] = useState({
         options: {
             chart: {
@@ -53,7 +50,7 @@ const Predictions = () => {
                 }
             },
             title: {
-                text: "Future Buy",
+                text: "Rates Buy",
                 align: 'left',
                 style: {
                     color: '#ffffff' // set the color of the title to white
@@ -62,7 +59,7 @@ const Predictions = () => {
         },
         series: [
             {
-                name: "Future Buy",
+                name: "Rates Buy",
                 data: [0, 0, 0]
             }
         ]
@@ -96,7 +93,7 @@ const Predictions = () => {
                 }
             },
             title: {
-                text: "Future Sell",
+                text: "Rates Sell",
                 align: 'left',
                 style: {
                     color: '#ffffff' // set the color of the title to white
@@ -105,7 +102,7 @@ const Predictions = () => {
         },
         series: [
             {
-                name: "Future Sell",
+                name: "Rates Sell",
                 data: [0, 0, 0]
             }
         ]
@@ -117,25 +114,16 @@ const Predictions = () => {
         setTabValue(newValue);
     };
 
-    function fetchBestTime() {
-        fetch(`${SERVER_URL}/best_time`)
+    function fetchRates() {
+        fetch(`${SERVER_URL}/getrates/${graphDays}`)
             .then(response => response.json())
             .then(data => {
-                setBestBuyTime(data.best_buy_time);
-                setBestSellTime(data.best_sell_time);
+                setpastBuy(data['avg_buy']);
+                setpastSell(data['avg_sell']);
+                console.log(graphDays)
             });
     }
-    useEffect(fetchBestTime, []);
-
-    function fetchPrediction() {
-        fetch(`${SERVER_URL}/predict/${predictionDays}`)
-            .then(response => response.json())
-            .then(data => {
-                setFutureBuy(data['future_buy']);
-                setFutureSell(data['future_sell']);
-            });
-    }
-    useEffect(fetchPrediction, [predictionDays]);
+    useEffect(fetchRates, [graphDays]);
 
 
     function updateGraph() {
@@ -154,7 +142,7 @@ const Predictions = () => {
                         },
                     },
                     xaxis: {
-                        categories: futureBuy.map(item => item.date),
+                        categories: pastBuy.map(item => item.date),
                         labels: {
                             style: {
                                 colors: "#ffffff"
@@ -169,7 +157,7 @@ const Predictions = () => {
                         }
                     },
                     title: {
-                        text: "Future Buy",
+                        text: "Rates Buy",
                         align: 'left',
                         style: {
                             color: '#ffffff' // set the color of the title to white
@@ -178,8 +166,8 @@ const Predictions = () => {
                 },
                 series: [
                     {
-                        name: "Future Buy",
-                        data: futureBuy.map(item => item.value)
+                        name: "Rates Buy",
+                        data: pastBuy.map(item => item.value)
                     }
                 ]
             }
@@ -199,7 +187,7 @@ const Predictions = () => {
                         },
                     },
                     xaxis: {
-                        categories: futureSell.map(item => item.date),
+                        categories: pastSell.map(item => item.date),
                         labels: {
                             style: {
                                 colors: "#ffffff"
@@ -214,7 +202,7 @@ const Predictions = () => {
                         }
                     },
                     title: {
-                        text: "Future Sell",
+                        text: "Rates Sell",
                         align: 'left',
                         style: {
                             color: '#ffffff' // set the color of the title to white
@@ -223,8 +211,8 @@ const Predictions = () => {
                 },
                 series: [
                     {
-                        name: "Future Sell",
-                        data: futureSell.map(item => item.value)
+                        name: "Rates Sell",
+                        data: pastSell.map(item => item.value)
                     }
                 ]
             }
@@ -232,27 +220,16 @@ const Predictions = () => {
     }
 
     return (
-        <div id="predictions" className='wrapper'>
+        <div id="graphRates" className='wrapper'>
             <Typography variant="h5">
-                <span>Best Time to Buy and Sell</span>
-                <Tooltip title="the following is a prediction section for the rates, and their best time to buy and sell: You can also enter a specific amount of days and see what would the rates look like">
+                <span>Buy and Sell Rates</span>
+                <Tooltip title="the following is a section that graphs the different Buy and Sell rates over the entered amount of days">
                     <IconButton >
                         <AiOutlineInfoCircle className='icon_button_design' />
                     </IconButton>
                 </Tooltip>
             </Typography>
-            <div className="predictions__card">
-                <article className='predictions__cards'>
-                    <BiTimeFive className='predictions__icon' />
-                    <h5>Best Time to Buy</h5>
-                    <small>{bestBuyTime}</small>
-                </article>
-                <article className='predictions__cards'>
-                    <BiTimeFive className='predictions__icon' />
-                    <h5>Best Time to Sell</h5>
-                    <small>{bestSellTime}</small>
-                </article>
-            </div>
+            
             <div className="form-item">
                 <TextField
                     InputLabelProps={{
@@ -262,22 +239,22 @@ const Predictions = () => {
                         style: { color: 'white' },
                     }}
                     fullWidth
-                    label="Prediction Days"
+                    label="Graph Days"
                     type="number"
-                    value={predictionDays}
+                    value={graphDays}
                     onChange={({ target: { value } }) => {
                         if (value<0) {
-                            setPredictionDays(3)
+                            setgraphDays(10)
                         }
                         else{
-                            setPredictionDays(value)
+                            setgraphDays(value)
                         }
                     }}
                     inputProps={{
                         min: 0,
                       }}
                 />
-                <Button className='button' color="primary" variant="contained" onClick={updateGraph} style={{ marginTop: "20px", backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold" }}>Fetch Predictions</Button>
+                <Button className='button' color="primary" variant="contained" onClick={updateGraph} style={{ marginTop: "20px", backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold" }}>Fetch Rates</Button>
 
             </div>
             <TabContext value={tabValue}>
@@ -287,11 +264,11 @@ const Predictions = () => {
                     indicatorColor="primary"
                     centered
                  >
-                    <Tab label="Graph Buy Prediction" value="1" />
-                    <Tab label="Graph Sell Prediction" value="2" />
+                    <Tab label="Graph Buy Rates" value="1" />
+                    <Tab label="Graph Sell Rates" value="2" />
                 </TabList>
                 <TabPanel value='1'>
-                    <div className="predictions__chart__cards">
+                    <div className="rates__chart__cards">
                         <Chart
                             options={chartDataBuy.options}
                             series={chartDataBuy.series}
@@ -302,7 +279,7 @@ const Predictions = () => {
                 </TabPanel>
 
                 <TabPanel value='2'>
-                    <div className="predictions__chart__cards">
+                    <div className="rates__chart__cards">
                         <Chart
                             options={chartDataSell.options}
                             series={chartDataSell.series}
@@ -316,4 +293,4 @@ const Predictions = () => {
     )
 }
 
-export default Predictions
+export default RateGraphs

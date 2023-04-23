@@ -1,0 +1,38 @@
+
+
+
+.platform__cards {
+    display: grid;
+    grid-template-columns: repeat(1,1fr);
+}
+
+.platform__cards {
+    background: var(--color-bg-variant);
+    border: 1px solid var(--color-light);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    transition: var(--transition);
+    margin-bottom: 1rem;
+}
+
+.users__cards {
+    background: var(--color-bg-variant);
+    border: 1px solid var(--color-light);
+    border-radius: 1rem;
+    padding: 0.5rem;
+    transition: var(--transition);
+    margin:0.5rem;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 1.5rem; 
+    justify-items: center;
+}
+
+
+.icon {
+    color:var(--color-bg-light);
+    font-size: 1.4rem;
+}
+
+  

@@ -185,6 +185,7 @@ const ExchangeRates = () => {
         setUserToken(null);
         clearUserToken()
     }
+    
 
     return (
         <div>
@@ -194,6 +195,8 @@ const ExchangeRates = () => {
                         <Typography variant="h5" style={{ marginRight: "20px" }} >Exchange Rate App</Typography>
                         <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#statistics">Statistics</a>
                         <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#predictions">Predictions</a>
+                        <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#graphRates">Rates Graph</a>
+                        {userToken && <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#platform">Platform</a>}
                     </div>
 
                     <div>
@@ -267,7 +270,17 @@ const ExchangeRates = () => {
                                 label="LBP Amount"
                                 type="number"
                                 value={lbpInput}
-                                onChange={({ target: { value } }) => setLbpInput(value)}
+                                onChange={({ target: { value } }) => {
+                                    if (value<0) {
+                                        setLbpInput("")
+                                    }
+                                    else{
+                                        setLbpInput(value)
+                                    }
+                                }}
+                                inputProps={{
+                                    min: 0,
+                                  }}
                             />
                         </div>
                         <div className="form-item">
@@ -282,7 +295,18 @@ const ExchangeRates = () => {
                                 label="USD Amount"
                                 type="number"
                                 value={usdInput}
-                                onChange={({ target: { value } }) => setUsdInput(value)}
+                                onChange={({ target: { value } }) => {
+                                    if (value<0) {
+                                        setUsdInput("")
+                                    }
+                                    else{
+                                        setUsdInput(value)
+                                    }
+                                }}
+                                inputProps={{
+                                    min: 0,
+                                  }}
+
                             />
                         </div>
                         <Select id="transaction-type" style={{ color: 'white' }} defaultValue={transactionType} size="small" onChange={e => setTransactionType(e.target.value)}>
