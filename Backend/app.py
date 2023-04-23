@@ -1,4 +1,5 @@
 
+from sqlalchemy import and_, or_
 from .db_config import DB_CONFIG
 import datetime
 
@@ -35,7 +36,7 @@ bcrypt = Bcrypt(app)
 
 app.app_context().push()
 
-from .model.user import User, user_schema, Friend, friend_schema
+from .model.user import FriendSchema, User, user_schema, Friend, friend_schema, friends_schema
 from .model.transaction import Transaction, transaction_schema
 
 
@@ -466,57 +467,192 @@ def getexchangerates(num_days):
 
 
 
+#Friend Manageemnt APIS
 
-
-#Friend Management
+#Get all friends
 @app.route('/users/friends', methods=['GET'])
-def get_all_friends():
-    user_id = decode_token(extract_auth_token(request))
-    if not user_id:
-        abort(403)
-    friends = Friend.query.filter_by(user_id=user_id)
-    return jsonify(friend_schema.dump(friends))
+def get_friends():
+    
+    if extract_auth_token(request):
+        
+        if decode_token(extract_auth_token(request)):
+            
+            user_id = decode_token(extract_auth_token(request))
+            #handle the case for whether the request was sent by the user or by the friend
+            friends = Friend.query.filter(or_(Friend.user_id==user_id, Friend.friend_id==user_id), Friend.status=='accepted').all()
+            friend_ids = [friend.friend_id if friend.user_id==user_id else friend.user_id for friend in friends]
+            friends = User.query.filter(User.id.in_(friend_ids)).all()
+     
+            if not user_id:
+                
+                abort(403)
+    else:
+        abort(401, 'Authentication token is missing or invalid.')
+    
+   
+    return friends_schema.jsonify(friends)
 
 
+
+
+
+
+#Add friend
 @app.route('/users/add_friend', methods=['POST'])
 def add_friend():
-    user_id = decode_token(extract_auth_token(request))
-    if not user_id:
-        abort(403)
-    friend_name = request.json['friend_name']
-    friend = User.query.filter_by(user_name=friend_name).first()
-    if not friend:
-        return jsonify({'message': 'Friend not found'}), 404
-    new_friend = Friend(user_id, friend.id, 'pending')
-    db.session.add(new_friend)
-    db.session.commit()
-    return friend_schema.jsonify(new_friend), 201
+    if extract_auth_token(request):
+        
+        if decode_token(extract_auth_token(request)):
+            
+            user_id = decode_token(extract_auth_token(request))
+            
+            if not user_id:
+                
+                abort(403)
+                
+            friend_name = request.json['friend_name']
+            friend = User.query.filter_by(user_name=friend_name).first()
+            
+            if not friend:
+                
+                return jsonify({'message': 'Friend not found'}), 404
+            
+        existing_friendship = Friend.query.filter_by(user_id=user_id, friend_id=friend.id).first()
+        
+        if existing_friendship:
+            
+            return jsonify({'message': 'Friend request already sent'}), 400
+        
+        new_friend = Friend(user_id, friend.id, 'pending')
+        db.session.add(new_friend)
+        db.session.commit()
+    
+    else:
+        
+        abort(401, 'Authentication token is missing or invalid.')
+        
+    return jsonify({'message': 'Friend request sent'}), 201
 
 
-@app.route('/friends/<int:friend_id>', methods=['PUT'])
-def accept_reject_friend(friend_id):
-    user_id = decode_token(extract_auth_token(request))
-    if not user_id:
-        abort(403)
-    friend = Friend.query.get(friend_id)
-    if not friend:
-        return jsonify({'message': 'Friend request not found'}), 404
-    if friend.user_id != user_id:
-        abort(403)
-    if 'status' not in request.json:
-        return jsonify({'message': 'Missing status parameter'}), 400
-    status = request.json['status']
-    if status not in ['accepted', 'rejected']:
-        return jsonify({'message': 'Invalid status parameter'}), 400
-    friend.status = status
-    db.session.commit()
-    return friend_schema.jsonify(friend), 200
 
 
+
+#Display outgoing and incoming friend requests
 @app.route('/users/friend_requests', methods=['GET'])
 def get_friend_requests():
-    user_id = decode_token(extract_auth_token(request))
-    if not user_id:
-        abort(403)
-    friend_requests = Friend.query.filter_by(user_id=user_id, status='pending')
-    return jsonify(friend_schema.dump(friend_requests, many=True))
+    
+    if extract_auth_token(request):
+        
+        if decode_token(extract_auth_token(request)):
+            
+            user_id = decode_token(extract_auth_token(request))
+            
+            if not user_id:
+                
+                abort(403)
+                
+        friend_data_incoming = db.session.query(User.id, User.user_name).\
+            join(Friend, Friend.user_id == User.id).\
+            filter(Friend.friend_id == user_id, Friend.status == 'pending').all()
+        friend_data_incoming = [{'user_name': user_name, 'request_type': 'incoming'} for id, user_name in friend_data_incoming]
+        friend_data_outgoing = db.session.query(User.id, User.user_name).\
+            join(Friend, Friend.friend_id == User.id).\
+            filter(Friend.user_id == user_id, Friend.status == 'pending').all()
+            
+        friend_data_outgoing = [{'user_name': user_name, 'request_type': 'outgoing'} for id, user_name in friend_data_outgoing]
+        friend_data = friend_data_incoming + friend_data_outgoing
+    
+        return jsonify(friend_data)
+    
+    else:
+        
+        abort(401, 'Authentication token is missing or invalid.')
+
+
+#manage friend request
+@app.route('/users/request_action/<int:sender_id>', methods=['PUT'])
+def accept_reject_friend(sender_id):
+    
+    if extract_auth_token(request):
+        
+        if decode_token(extract_auth_token(request)):
+            
+            user_id = decode_token(extract_auth_token(request))
+            
+            if not user_id:
+                
+                abort(403)
+        
+        friend = Friend.query.filter_by( user_id=sender_id, friend_id=user_id).first()
+
+        if not friend:
+            return jsonify({'message': 'Friend request not found'}), 404
+
+
+        # Check if the current user is the recipient of the friend request
+        if friend.friend_id == user_id:
+
+            if 'status' not in request.json:
+                
+                return jsonify({'message': 'Missing status parameter'}), 400
+
+            status = request.json['status']
+
+            if status not in ['accepted', 'rejected']:
+                
+                return jsonify({'message': 'Invalid status parameter'}), 400
+
+            friend.status = status
+            db.session.commit()
+
+
+            return jsonify({'message': 'Friend request {} successfully'.format(status)}), 200
+        
+        else:
+            
+            return jsonify({'message': 'You are not authorized to perform this action'}), 403
+    else:
+            
+            abort(401, 'Authentication token is missing or invalid.')
+
+#remove friend
+@app.route('/users/remove_friend/<int:friend_id>', methods=['DELETE'])
+def remove_friend(friend_id):
+    
+    if extract_auth_token(request):
+        
+        if decode_token(extract_auth_token(request)):
+            
+            user_id = decode_token(extract_auth_token(request))
+            
+            if not user_id:
+                
+                abort(403)
+    
+
+        
+        friend = Friend.query.filter(
+            ((Friend.user_id == user_id) & (Friend.friend_id == friend_id)) | 
+            ((Friend.user_id == friend_id) & (Friend.friend_id == user_id))
+        ).first()
+        
+        
+        if not friend:
+            
+            return jsonify({'message': 'Friend not found'}), 404
+        
+        db.session.delete(friend)
+        db.session.commit()
+        
+        return jsonify({'message': 'Friend removed'}), 200
+    
+    else:
+        
+        abort(401, 'Authentication token is missing or invalid.')
+#Get all users
+@app.route('/users', methods=['GET'])
+def get_users():
+    
+    users = User.query.all()
+    
+    return user_schema.jsonify(users), 200 
