@@ -1,5 +1,5 @@
 
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, not_, or_
 from .db_config import DB_CONFIG
 import datetime
 
@@ -478,19 +478,23 @@ def get_friends():
         if decode_token(extract_auth_token(request)):
             
             user_id = decode_token(extract_auth_token(request))
+            
+            if not user_id:
+                
+                abort(403)
             #handle the case for whether the request was sent by the user or by the friend
             friends = Friend.query.filter(or_(Friend.user_id==user_id, Friend.friend_id==user_id), Friend.status=='accepted').all()
             friend_ids = [friend.friend_id if friend.user_id==user_id else friend.user_id for friend in friends]
             friends = User.query.filter(User.id.in_(friend_ids)).all()
+            
+            return friends_schema.jsonify(friends)
      
-            if not user_id:
-                
-                abort(403)
+
     else:
         abort(401, 'Authentication token is missing or invalid.')
     
    
-    return friends_schema.jsonify(friends)
+    
 
 
 
@@ -569,59 +573,65 @@ def get_friend_requests():
         abort(401, 'Authentication token is missing or invalid.')
 
 
-#manage friend request
+
+#Manage friend requests
 @app.route('/users/request_action/<string:sender_name>', methods=['PUT'])
 def accept_reject_friend(sender_name):
-
-    if extract_auth_token(request):
-
-        if decode_token(extract_auth_token(request)):
-
-            user_id = decode_token(extract_auth_token(request))
-
-            if not user_id:
-
-                abort(403)
-
-        sender = User.query.filter_by(user_name=sender_name).first()
     
-        if not sender:
+    if extract_auth_token(request):
+        
+        if decode_token(extract_auth_token(request)):
             
-            return jsonify({'message': 'User not found'}), 404
-
-        friend = Friend.query.filter_by(user_id=sender.id, friend_id=user_id).first()
-
-        if not friend:
+            user_id = decode_token(extract_auth_token(request))
             
-            return jsonify({'message': 'Friend request not found'}), 404
-
-        # Check if the current user is the recipient of the friend request
-        if friend.friend_id == user_id:
-
-            if 'status' not in request.json:
-
-                return jsonify({'message': 'Missing status parameter'}), 400
-
-            status = request.json['status']
-
-            if status not in ['accepted', 'rejected']:
-
-                return jsonify({'message': 'Invalid status parameter'}), 400
-
-            friend.status = status
-            db.session.commit()
-
-            return jsonify({'message': 'Friend request {} successfully'.format(status)}), 200
-
-        else:
-
-            return jsonify({'message': 'You are not authorized to perform this action'}), 403
+            if not user_id:
+                
+                abort(403)
+                
+            sender = User.query.filter_by(user_name=sender_name).first()
+            
+            if not sender:
+                
+                return jsonify({'message': 'User not found'}), 404
+            
+            friend = Friend.query.filter_by(user_id=sender.id, friend_id=user_id).first()
+            
+            if not friend:
+                
+                return jsonify({'message': 'Friend request not found'}), 404
+            # Check if the current user is the recipient of the friend request
+            if friend.friend_id == user_id:
+                
+                if 'status' not in request.json:
+                    
+                    return jsonify({'message': 'Missing status parameter'}), 400
+                
+                status = request.json['status']
+                
+                if status not in ['accepted', 'rejected']:
+                    
+                    return jsonify({'message': 'Invalid status parameter'}), 400
+                
+                friend.status = status
+                #delete friend request record from the friend table in case of rejection
+                if status == 'rejected':
+                    
+                    db.session.delete(friend)
+                    
+                db.session.commit()
+                
+                return jsonify({'message': 'Friend request {} successfully'.format(status)}), 200
+            
+            else:
+                
+                return jsonify({'message': 'You are not authorized to perform this action'}), 403
+            
     else:
-
+        
         abort(401, 'Authentication token is missing or invalid.')
 
 
-#remove friend
+#Remove friend
 @app.route('/users/remove_friend/<int:friend_id>', methods=['DELETE'])
 def remove_friend(friend_id):
     
@@ -657,16 +667,11 @@ def remove_friend(friend_id):
         abort(401, 'Authentication token is missing or invalid.')
         
         
-#Get all users
-@app.route('/users', methods=['GET'])
-def get_users():
-    
-    users = User.query.all()
-    
-    return user_schema.jsonify(users), 200 
 
 
 
+
+#Create transaction request
 @app.route('/transaction_request', methods=['POST'])
 def create_transaction_request():
     
@@ -729,7 +734,7 @@ def create_transaction_request():
         abort(401, 'Authentication token is missing or invalid.')
 
 
-
+#fetch transaction requests
 @app.route('/get_transaction_requests', methods=['GET'])
 def get_transaction_requests():
         
@@ -764,7 +769,7 @@ def update_transaction_request_status(request_id):
             user_id = decode_token(extract_auth_token(request))
 
             if not user_id:
-
+                
                 abort(403)
 
             transaction_request = TransactionRequests.query.get(request_id)
@@ -798,7 +803,7 @@ def update_transaction_request_status(request_id):
                     user_id=transaction_request.recipient_id
                 )
 
-                # Add transaction objects to database
+                # Add transaction objects to database in case of success
                 db.session.add(sender_transaction)
                 db.session.add(recipient_transaction)
 
@@ -808,3 +813,66 @@ def update_transaction_request_status(request_id):
             return jsonify({'message': 'Transaction request updated successfully'}), 200
     else:
         abort(401, 'Authentication token is missing or invalid.')
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Fetch all users that are not friends with the current user
+@app.route('/users', methods=['GET'])
+def get_users():
+    # Extract user ID from the authentication token
+        if extract_auth_token(request):
+                
+                if decode_token(extract_auth_token(request)):
+                    
+                    user_id = decode_token(extract_auth_token(request))
+                    
+                    if not user_id:
+                        
+                        abort(403)
+
+                    subquery = db.session.query(Friend.friend_id).filter(or_(
+                    (Friend.user_id == user_id), (Friend.friend_id == user_id)
+                    )).filter(Friend.status == 'accepted')
+                    users_not_friends = User.query.filter(
+                    User.id != user_id,
+                    not_(User.id.in_(subquery))
+                    )
+
+        # serialize user data
+        result = user_schema.dump(users_not_friends)
+        print(result)
+        print("hello Id is:    ", user_id)
+        return jsonify(result)
+
+def get_non_friend_users():
+    if extract_auth_token(request):
+                
+                if decode_token(extract_auth_token(request)):
+                    
+                    user_id = decode_token(extract_auth_token(request))
+                    
+                    if not user_id:
+                        
+                        abort(403)  # Replace this with your authentication mechanism
+
+
+    # Fetch users who are not friends with the current user
+                    friends_subquery = db.session.query(Friend.user_id).filter(Friend.friend_id == user_id).union(
+                        db.session.query(Friend.friend_id).filter(Friend.user_id == user_id)).subquery()
+
+                    non_friend_users = User.query.filter(User.id != user_id, User.id.notin_(friends_subquery)).all()
+
+                    # Convert results to JSON
+                    result = [{"id": user.id, "user_name": user.user_name} for user in non_friend_users]
+
+                    return jsonify(result), 200
