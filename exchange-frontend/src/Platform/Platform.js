@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react'
 import '../App.css';
 import { Typography, TextField, Button } from '@mui/material'
 import './Platform.css'
-import { DataGrid } from "@mui/x-data-grid";
-import { getUserToken } from '../localStorage';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
@@ -14,21 +12,21 @@ import { Tooltip } from '@mui/material'
 import { BiSearch } from 'react-icons/bi'
 import {FaUserCircle} from 'react-icons/fa'
 
+
 var SERVER_URL = "http://127.0.0.1:5000"
 
 
 
-const Platform = () => {
+const Platform = ({userToken}) => {
     let users = [];
-    let friends = ['Khalil', 'Abou Nader', 'Boutros'];
-    const [filteredListUsers, setfilteredListUsers] = new useState(users);
-    const [filteredListFriends, setfilteredListFriends] = new useState(friends);
-    let [userToken, setUserToken] = useState(getUserToken());
-    //from material ui
-    const [tabValue, setTabValue] = useState("");
-
-    const [incomingFriendRequests, setIncomingFriendRequests] =  useState([])
-    const [outgoingFriendRequests, setOutgoingFriendRequests] =  useState([])
+    let friends = [];
+    let [filteredListUsers, setfilteredListUsers] = new useState(users);
+    let [filteredListFriends, setfilteredListFriends] = new useState(friends);
+    let [tabValue, setTabValue] = useState("");
+    let [incomingFriendRequests, setIncomingFriendRequests] =  useState([])
+    let [outgoingFriendRequests, setOutgoingFriendRequests] =  useState([])
+    let [searchTermUsers, setsearchTermUsers] = useState("");
+    let [searchTermFriends, setsearchTermFriends] = useState("");
 
     
 
@@ -49,7 +47,6 @@ const Platform = () => {
 
     function fetchFriends() {
         let header = { "Content-Type": "application/json" };
-        userToken = getUserToken()
         if (userToken) {
             header["Authorization"] = `Bearer ${userToken}`;
         }
@@ -60,14 +57,12 @@ const Platform = () => {
             .then(data => {
                 setfilteredListFriends(data)
                 friends = data
-                console.log(data)
             });
     }
-    useEffect(fetchFriends, []);
+    useEffect(fetchFriends, [userToken]);
 
     function fetchFriendRequests() {
         let header = { "Content-Type": "application/json" };
-        userToken = getUserToken()
         if (userToken) {
             header["Authorization"] = `Bearer ${userToken}`;
         }
@@ -83,26 +78,62 @@ const Platform = () => {
     useEffect(fetchFriendRequests, []);
 
 
-    const [searchTermUsers, setsearchTermUsers] = useState("");
-    const [searchTermFriends, setsearchTermFriends] = useState("");
+    function friendRequestAction(answer,senderName){
+        let header = { "Content-Type": "application/json" };
+        if (userToken) {
+            header["Authorization"] = `Bearer ${userToken}`;
+        }
+        let status = {
+            status: answer
+        }
+        fetch(`${SERVER_URL}/users/request_action/${senderName}`, {
+            method: "PUT",
+            headers: header,
+            body: JSON.stringify(status),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);//success
+            })
+            .catch((err) => {
+                console.error("something went wrong while sending the request");//error
+            });
+    }
+
+    function removeFriend(friendId) {
+        let header = { "Content-Type": "application/json" };
+        if (userToken) {
+            header["Authorization"] = `Bearer ${userToken}`;
+        }
+
+        fetch(`${SERVER_URL}/users/remove_friend/${friendId}`, {
+            method: "Delete",
+            headers: header,
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);//success
+            })
+            .catch((err) => {
+                console.error("something went wrong while removing this friend");//error
+            });
+    }
+
 
     const handleSearchUsers = () => {
         let updatedList = [...filteredListUsers];
         updatedList = updatedList.filter((item) => item.user_name.toLowerCase().indexOf(searchTermUsers.toLowerCase()) !== -1);
         setfilteredListUsers(updatedList);
-        console.log(updatedList)
     };
 
     const handleSearchFriends = () => {
         let updatedListFriends = [...filteredListFriends];
         updatedListFriends = updatedListFriends.filter((item) => item.user_name.toLowerCase().indexOf(searchTermFriends.toLowerCase()) !== -1);
         setfilteredListFriends(updatedListFriends);
-        console.log(updatedListFriends)
     };
 
     const handleAddUser = (user) => {
         let header = { "Content-Type": "application/json" };
-            userToken = getUserToken()
             if (userToken) {
                 header["Authorization"] = `Bearer ${userToken}`;
             }
@@ -119,13 +150,13 @@ const Platform = () => {
                     console.log(data);//success
                 })
                 .catch((err) => {
-                    console.error("something went wrong while sending the transaction");//error
+                    console.error("something went wrong while sending the request");//error
                 });
     }
 
+      
     
-    
-    return (
+    return (<div>{
         userToken && (
             <div id="platform" className="wrapper">
                 <Typography variant="h5">
@@ -189,7 +220,7 @@ const Platform = () => {
                                             </span>
                                             <div className='friends__buttons'>
                                             <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Record</Button>
-                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Remove</Button>
+                                            <Button className='button'  variant="contained" size='small' onClick={()=>{removeFriend(item.id); fetchFriends()}} style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Remove</Button>
                                             </div>
                                         </li>
                                     ))}
@@ -249,8 +280,8 @@ const Platform = () => {
                                                 {item.user_name}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
-                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
+                                            <Button className='button'  variant="contained" onClick={friendRequestAction("accepted",item.user_name)} size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
+                                            <Button className='button'  variant="contained" onClick={friendRequestAction("rejected",item.user_name)}size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
                                             </div>
                                         </li>
                                     ))}
@@ -279,6 +310,7 @@ const Platform = () => {
                 </TabContext>
             </div>
         )
+                                    }</div>
     )
 }
 
