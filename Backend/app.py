@@ -570,50 +570,56 @@ def get_friend_requests():
 
 
 #manage friend request
-@app.route('/users/request_action/<int:sender_id>', methods=['PUT'])
-def accept_reject_friend(sender_id):
-    
+@app.route('/users/request_action/<string:sender_name>', methods=['PUT'])
+def accept_reject_friend(sender_name):
+
     if extract_auth_token(request):
-        
+
         if decode_token(extract_auth_token(request)):
-            
+
             user_id = decode_token(extract_auth_token(request))
-            
+
             if not user_id:
-                
+
                 abort(403)
-        
-        friend = Friend.query.filter_by( user_id=sender_id, friend_id=user_id).first()
+
+        sender = User.query.filter_by(user_name=sender_name).first()
+    
+        if not sender:
+            
+            return jsonify({'message': 'User not found'}), 404
+
+        friend = Friend.query.filter_by(user_id=sender.id, friend_id=user_id).first()
 
         if not friend:
+            
             return jsonify({'message': 'Friend request not found'}), 404
-
 
         # Check if the current user is the recipient of the friend request
         if friend.friend_id == user_id:
 
             if 'status' not in request.json:
-                
+
                 return jsonify({'message': 'Missing status parameter'}), 400
 
             status = request.json['status']
 
             if status not in ['accepted', 'rejected']:
-                
+
                 return jsonify({'message': 'Invalid status parameter'}), 400
 
             friend.status = status
             db.session.commit()
 
-
             return jsonify({'message': 'Friend request {} successfully'.format(status)}), 200
-        
+
         else:
-            
+
             return jsonify({'message': 'You are not authorized to perform this action'}), 403
     else:
-            
-            abort(401, 'Authentication token is missing or invalid.')
+
+        abort(401, 'Authentication token is missing or invalid.')
+
 
 #remove friend
 @app.route('/users/remove_friend/<int:friend_id>', methods=['DELETE'])
@@ -656,3 +662,139 @@ def get_users():
     users = User.query.all()
     
     return user_schema.jsonify(users), 200 
+
+# @app.route('/users/friends/new_transaction', methods=['POST'])
+# def new_transaction_friends():
+        
+#         if extract_auth_token(request):
+            
+#             if decode_token(extract_auth_token(request)):
+                
+#                 user_id = decode_token(extract_auth_token(request))
+                
+#                 if not user_id:
+                    
+#                     abort(403)
+                    
+#                 friend_name = request.json['friend_name']
+#                 friend = User.query.filter_by(user_name=friend_name).first()
+                
+#                 if not friend:
+                    
+#                     return jsonify({'message': 'Friend not found'}), 404
+                
+#                 existing_friendship = Friend.query.filter_by(user_id=user_id, friend_id=friend.id).first()
+                
+#                 if not existing_friendship:
+                    
+#                     return jsonify({'message': 'You are not friends with this user'}), 400
+                
+#                 if existing_friendship.status != 'accepted':
+                    
+#                     return jsonify({'message': 'Friend request has not been accepted'}), 400
+                
+#                 amount = request.json['amount']
+#                 transaction_type = request.json['transaction_type']
+                
+#                 if transaction_type not in ['buy', 'sell']:
+                    
+#                     return jsonify({'message': 'Invalid transaction type'}), 400
+                
+#                 if transaction_type == 'buy':
+                    
+#                     if amount > friend.balance:
+                        
+#                         return jsonify({'message': 'Insufficient balance'}), 400
+                    
+#                     else:
+                        
+#                         friend.balance -= amount
+#                         user = User.query.get(user_id)
+#                         user.balance += amount
+#                         db.session.commit()
+                        
+#                         return jsonify({'message': 'Transaction successful'}), 201
+                
+#                 else:
+                    
+#                     if amount > user.balance:
+                        
+#                         return jsonify({'message': 'Insufficient balance'}), 400
+                    
+#                     else:
+                        
+#                         friend.balance += amount
+#                         user = User.query.get(user_id)
+#                         user.balance -= amount
+#                         db.session.commit()
+                        
+#                         return jsonify({'message': 'Transaction successful'}), 201
+#         else:
+            
+#             abort(401, 'Authentication token is missing or invalid.')
+            
+            
+            
+            
+            
+            
+# @app.route('/transactions', methods=['POST'])
+# def create_transaction():
+    
+#         if extract_auth_token(request):
+        
+#             if decode_token(extract_auth_token(request)):
+                
+#                 user_id = decode_token(extract_auth_token(request))
+                
+#                 if not user_id:
+                    
+#                     abort(403)
+    
+#                 sender_id = user_id
+#                 recipient_id = request.json['recipient_id']
+#                 usd_amount = request.json['usd_amount']
+#                 lbp_amount = request.json['lbp_amount']
+#                 usd_to_lbp = request.json['usd_to_lbp']
+
+#                 if not (sender_id and recipient_id):
+#                     return jsonify({'error': 'Invalid user ID(s)'}), 400
+                
+#                 # Check that sender and recipient are friends
+
+
+#                 friendship = Friend.query.filter(
+#                     or_(
+#                         and_(Friend.user_id == sender_id, Friend.friend_id == recipient_id),
+#                         and_(Friend.user_id == recipient_id, Friend.friend_id == sender_id)
+#                     ),
+#                     Friend.status == 'accepted'
+#                 ).first()
+
+#                 if not friendship:
+#                     return jsonify({'error': 'Sender and recipient are not friends'}), 400
+                
+#                 # Create new transaction objects
+#                 sender_transaction = Transaction(
+#                     usd_amount=usd_amount,
+#                     lbp_amount=lbp_amount,
+#                     usd_to_lbp=usd_to_lbp,
+#                     user_id=sender_id
+#                 )
+#                 recipient_transaction = Transaction(
+#                     usd_amount=usd_amount,
+#                     lbp_amount=lbp_amount,
+#                     usd_to_lbp= not usd_to_lbp,
+#                     user_id=recipient_id
+#                 )
+                
+#                 # Add transaction objects to database
+#                 db.session.add(sender_transaction)
+#                 db.session.add(recipient_transaction)
+#                 db.session.commit()
+                
+#                 return jsonify({'message': 'Transaction created successfully'}), 201
+            
+#         else:
+            
+#              abort(401, 'Authentication token is missing or invalid.')
