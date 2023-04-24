@@ -17,6 +17,10 @@ import { MenuItem } from '@mui/material';
 import {MdCurrencyExchange} from 'react-icons/md'
 import {BsCurrencyExchange} from 'react-icons/bs'
 import Tooltip from '@mui/material/Tooltip';
+import Statistics from '../statistics/Statistics';
+import Predictions from '../predictions/Predictions';
+import Platform from '../Platform/Platform';
+import RateGraphs from '../rateGraphs/RateGraphs'
 
 
 
@@ -352,6 +356,10 @@ const ExchangeRates = () => {
                             autoHeight />
                     </div>
                 )}
+                <Statistics/>
+                <Predictions/>
+                <RateGraphs/>
+                <Platform userToken={userToken}/>
 
             </div>
             );
