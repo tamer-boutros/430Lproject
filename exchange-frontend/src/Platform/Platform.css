@@ -35,4 +35,9 @@
     font-size: 1.4rem;
 }
 
+.friends__buttons {
+    grid-template-columns: repeat(2,1fr);
+    gap: 0.1rem; 
+    justify-items: center;
+}
   

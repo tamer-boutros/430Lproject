@@ -146,8 +146,8 @@ const ExchangeRates = () => {
 
 
     }
-    fetchRates();
-    fetchUserTransactions();
+    // fetchRates();
+    //fetchUserTransactions();
 
     function login(username, password) {
         return fetch(`${SERVER_URL}/authenticate`, {
@@ -164,7 +164,7 @@ const ExchangeRates = () => {
             .then((body) => {
                 setAuthState(States.USER_AUTHENTICATED);
                 setUserToken(body.token);
-                saveUserToken(userToken);
+                saveUserToken(body.token);
             });
     }
 
