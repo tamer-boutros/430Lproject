@@ -11,6 +11,9 @@ import { IconButton } from '@mui/material';
 import { Tooltip } from '@mui/material'
 import { BiSearch } from 'react-icons/bi'
 import {FaUserCircle} from 'react-icons/fa'
+import RequestTransactions from './RequestTransactions';
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
 
 
 var SERVER_URL = "http://127.0.0.1:5000"
@@ -27,6 +30,15 @@ const Platform = ({userToken}) => {
     let [outgoingFriendRequests, setOutgoingFriendRequests] =  useState([])
     let [searchTermUsers, setsearchTermUsers] = useState("");
     let [searchTermFriends, setsearchTermFriends] = useState("");
+    const States = {
+        RECORDING: "RECORDING",
+        CLOSING: "CLOSING",
+        PENDING: "PENDING",
+    };
+    let [transDialogState, settransDialogState] = useState(States.PENDING);
+    let [recipientName, setRecipientName] = useState("")
+    let [transaction_requests, setTransactionRequests] = useState([])
+
 
     
 
@@ -36,7 +48,13 @@ const Platform = ({userToken}) => {
     };
 
     function fetchUsers() {
-        fetch(`${SERVER_URL}/users`)
+        let header = { "Content-Type": "application/json" };
+        if (userToken) {
+            header["Authorization"] = `Bearer ${userToken}`;
+        }
+        fetch(`${SERVER_URL}/users`, {
+            headers: header
+        })
             .then(response => response.json())
             .then(data => {
                 setfilteredListUsers(data)
@@ -119,6 +137,48 @@ const Platform = ({userToken}) => {
             });
     }
 
+    function recordTransaction(recipient_username, usd_amount, lbp_amount, usd_to_lbp) {
+        settransDialogState(States.PENDING)
+        let header = { "Content-Type": "application/json" };
+        if (userToken) {
+            header["Authorization"] = `Bearer ${userToken}`;
+        }
+        let transaction = {
+            recipient_username: recipient_username,
+            usd_amount: usd_amount,
+            lbp_amount: lbp_amount,
+            usd_to_lbp: usd_to_lbp
+        }
+
+        fetch(`${SERVER_URL}/transaction_request`, {
+            method: "POST",
+            headers: header,
+            body: JSON.stringify(transaction),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);//success
+            })
+            .catch((err) => {
+                console.error("something went wrong while removing this friend");//error
+            });
+    }
+
+    function fetchTransactionRequests() {
+        let header = { "Content-Type": "application/json" };
+        if (userToken) {
+            header["Authorization"] = `Bearer ${userToken}`;
+        }
+        fetch(`${SERVER_URL}/get_transaction_requests`, {
+            headers: header
+        })
+            .then(response => response.json())
+            .then(data => {
+                setTransactionRequests(data)
+            });
+    }
+    useEffect(fetchTransactionRequests, []);
+
 
     const handleSearchUsers = () => {
         let updatedList = [...filteredListUsers];
@@ -181,7 +241,32 @@ const Platform = ({userToken}) => {
                     </TabList>
                     <TabPanel value='1'>
                         <div className="platform__cards">
-                            past transactions with your friends
+                        Transaction Requests
+                            <div className='platform__cards'>
+                                <ol>
+                                    {transaction_requests.map((item) => (
+                                        <li className='users__cards'>
+                                            <FaUserCircle className='icon'/>
+                                            <span>
+                                                {item.id}
+                                            </span>
+                                            <span>
+                                                {item.usd_amount}$
+                                            </span>
+                                            <span>
+                                                {item.lbp_amount}L.L
+                                            </span>
+                                            <span>
+                                                {item.usd_to_lbp?"USD to LBP":"LBP to USD"}
+                                            </span>
+                                            <div className='friends__buttons'>
+                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
+                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ol>
+                            </div>
 
                         </div>
                     </TabPanel>
@@ -219,7 +304,7 @@ const Platform = ({userToken}) => {
                                                 {item.user_name}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Record</Button>
+                                            <Button className='button'  variant="contained" size='small' onClick={()=>{setRecipientName(item.user_name);settransDialogState(States.RECORDING)}} style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Record</Button>
                                             <Button className='button'  variant="contained" size='small' onClick={()=>{removeFriend(item.id); fetchFriends()}} style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Remove</Button>
                                             </div>
                                         </li>
@@ -308,6 +393,21 @@ const Platform = ({userToken}) => {
                     </TabPanel>
 
                 </TabContext>
+                <RequestTransactions
+                    open={transDialogState === States.RECORDING}
+                    onClose={() => settransDialogState(States.CLOSING)}
+                    onSubmit={recordTransaction}
+                    recipientName={recipientName}
+                />
+                <Snackbar
+                    elevation={6}
+                    variant="filled"
+                    open={transDialogState === States.PENDING}
+                    autoHideDuration={2000}
+                    onClose={() => settransDialogState(States.CLOSING)}
+                >
+                    <Alert severity="success">Success</Alert>
+                </Snackbar>
             </div>
         )
                                     }</div>
