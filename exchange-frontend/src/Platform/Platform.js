@@ -61,7 +61,7 @@ const Platform = ({userToken}) => {
                 users = data
             });
     }
-    useEffect(fetchUsers, []);
+    useEffect(fetchUsers, [userToken]);
 
     function fetchFriends() {
         let header = { "Content-Type": "application/json" };
@@ -93,7 +93,7 @@ const Platform = ({userToken}) => {
                 setOutgoingFriendRequests(data.filter(item => item.request_type === "outgoing"))
             });
     }
-    useEffect(fetchFriendRequests, []);
+    useEffect(fetchFriendRequests, [userToken]);
 
 
     function friendRequestAction(answer,senderName){
@@ -104,6 +104,7 @@ const Platform = ({userToken}) => {
         let status = {
             status: answer
         }
+        answer=""
         fetch(`${SERVER_URL}/users/request_action/${senderName}`, {
             method: "PUT",
             headers: header,
@@ -177,7 +178,30 @@ const Platform = ({userToken}) => {
                 setTransactionRequests(data)
             });
     }
-    useEffect(fetchTransactionRequests, []);
+    useEffect(fetchTransactionRequests, [userToken]);
+
+
+    function recordTransactionAction(answer, transactionRequestId) {
+        let header = { "Content-Type": "application/json" };
+        if (userToken) {
+            header["Authorization"] = `Bearer ${userToken}`;
+        }
+        let status = {
+            status: answer
+        }
+        fetch(`${SERVER_URL}/transaction_request/${transactionRequestId}`, {
+            method: "POST",
+            headers: header,
+            body: JSON.stringify(status),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);//success
+            })
+            .catch((err) => {
+                console.error("something went wrong while sending the answer of the transaction request");//error
+            });
+    }
 
 
     const handleSearchUsers = () => {
@@ -248,7 +272,7 @@ const Platform = ({userToken}) => {
                                         <li className='users__cards'>
                                             <FaUserCircle className='icon'/>
                                             <span>
-                                                {item.id}
+                                                {item.sender_id}
                                             </span>
                                             <span>
                                                 {item.usd_amount}$
@@ -260,8 +284,8 @@ const Platform = ({userToken}) => {
                                                 {item.usd_to_lbp?"USD to LBP":"LBP to USD"}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
-                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
+                                            <Button className='button' onClick={recordTransactionAction("accepted", item.id)} variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
+                                            <Button className='button' onClick={recordTransactionAction("rejected", item.id)} variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
                                             </div>
                                         </li>
                                     ))}
@@ -365,8 +389,9 @@ const Platform = ({userToken}) => {
                                                 {item.user_name}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button'  variant="contained" onClick={friendRequestAction("accepted",item.user_name)} size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
                                             <Button className='button'  variant="contained" onClick={friendRequestAction("rejected",item.user_name)}size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
+
+                                            <Button className='button'  variant="contained" onClick={friendRequestAction("accepted",item.user_name)} size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
                                             </div>
                                         </li>
                                     ))}
