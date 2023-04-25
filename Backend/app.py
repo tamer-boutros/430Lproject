@@ -769,7 +769,7 @@ def update_transaction_request_status(request_id):
             user_id = decode_token(extract_auth_token(request))
 
             if not user_id:
-                
+
                 abort(403)
 
             transaction_request = TransactionRequests.query.get(request_id)
@@ -828,51 +828,26 @@ def update_transaction_request_status(request_id):
 
 #Fetch all users that are not friends with the current user
 @app.route('/users', methods=['GET'])
-def get_users():
-    # Extract user ID from the authentication token
-        if extract_auth_token(request):
-                
-                if decode_token(extract_auth_token(request)):
-                    
-                    user_id = decode_token(extract_auth_token(request))
-                    
-                    if not user_id:
-                        
-                        abort(403)
-
-                    subquery = db.session.query(Friend.friend_id).filter(or_(
-                    (Friend.user_id == user_id), (Friend.friend_id == user_id)
-                    )).filter(Friend.status == 'accepted')
-                    users_not_friends = User.query.filter(
-                    User.id != user_id,
-                    not_(User.id.in_(subquery))
-                    )
-
-        # serialize user data
-        result = user_schema.dump(users_not_friends)
-        print(result)
-        print("hello Id is:    ", user_id)
-        return jsonify(result)
-
 def get_non_friend_users():
+    
     if extract_auth_token(request):
                 
-                if decode_token(extract_auth_token(request)):
-                    
-                    user_id = decode_token(extract_auth_token(request))
-                    
-                    if not user_id:
-                        
-                        abort(403)  # Replace this with your authentication mechanism
+        if decode_token(extract_auth_token(request)):
+            
+            user_id = decode_token(extract_auth_token(request))
+            
+            if not user_id:
+                
+                abort(403)  # Replace this with your authentication mechanism
 
 
     # Fetch users who are not friends with the current user
-                    friends_subquery = db.session.query(Friend.user_id).filter(Friend.friend_id == user_id).union(
-                        db.session.query(Friend.friend_id).filter(Friend.user_id == user_id)).subquery()
+            friends_subquery = db.session.query(Friend.user_id).filter(Friend.friend_id == user_id).union(
+                db.session.query(Friend.friend_id).filter(Friend.user_id == user_id)).subquery()
 
-                    non_friend_users = User.query.filter(User.id != user_id, User.id.notin_(friends_subquery)).all()
+            non_friend_users = User.query.filter(User.id != user_id, User.id.notin_(friends_subquery)).all()
 
-                    # Convert results to JSON
-                    result = [{"id": user.id, "user_name": user.user_name} for user in non_friend_users]
+            # Convert results to JSON
+            result = [{"id": user.id, "user_name": user.user_name} for user in non_friend_users]
 
-                    return jsonify(result), 200
+            return jsonify(result), 200
