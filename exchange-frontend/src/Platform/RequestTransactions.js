@@ -38,7 +38,7 @@ export default function RequestTransactions({
                         onChange={({ target: { value } }) => setLbpAmount(value)}
                     />
                 </div>
-                <Select id="transaction-type" style={{ color: '#2c2c6c', marginBottom: '10px' }} size='medium' defaultValue={transactionType} onChange={e => setTransactionType(e.target.value)}>
+                <Select id="transaction-type" style={{ color: '#2c2c6c', marginBottom: '10px' }} size='medium' defaultValue={transactionType} onChange={e => setTransactionType(e.target.value === "usd-to-lbp")}>
                             <MenuItem value="usd-to-lbp">USD to LBP</MenuItem>
                             <MenuItem value="lbp-to-usd">LBP to USD</MenuItem>
                         </Select>

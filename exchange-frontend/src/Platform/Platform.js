@@ -26,7 +26,7 @@ const Platform = ({userToken}) => {
     let [filteredListUsers, setfilteredListUsers] = new useState(users);
     let [filteredListFriends, setfilteredListFriends] = new useState(friends);
     let [tabValue, setTabValue] = useState("");
-    let [incomingFriendRequests, setIncomingFriendRequests] =  useState([])
+    let [incomingFriendRequests, setIncomingFriendRequests] =  useState(['ali'])
     let [outgoingFriendRequests, setOutgoingFriendRequests] =  useState([])
     let [searchTermUsers, setsearchTermUsers] = useState("");
     let [searchTermFriends, setsearchTermFriends] = useState("");
@@ -61,7 +61,9 @@ const Platform = ({userToken}) => {
                 users = data
             });
     }
+    // useEffect(fetchUsers, [userToken, friendRequestAction, removeFriend]);
     useEffect(fetchUsers, [userToken]);
+
 
     function fetchFriends() {
         let header = { "Content-Type": "application/json" };
@@ -77,6 +79,7 @@ const Platform = ({userToken}) => {
                 friends = data
             });
     }
+    // useEffect(fetchFriends, [userToken, friendRequestAction, removeFriend]);
     useEffect(fetchFriends, [userToken]);
 
     function fetchFriendRequests() {
@@ -93,6 +96,7 @@ const Platform = ({userToken}) => {
                 setOutgoingFriendRequests(data.filter(item => item.request_type === "outgoing"))
             });
     }
+    // useEffect(fetchFriendRequests, [userToken, friendRequestAction]);
     useEffect(fetchFriendRequests, [userToken]);
 
 
@@ -104,7 +108,6 @@ const Platform = ({userToken}) => {
         let status = {
             status: answer
         }
-        answer=""
         fetch(`${SERVER_URL}/users/request_action/${senderName}`, {
             method: "PUT",
             headers: header,
@@ -159,9 +162,10 @@ const Platform = ({userToken}) => {
             .then(response => response.json())
             .then(data => {
                 console.log(data);//success
+                console.log("hello this is transaction was sent")
             })
             .catch((err) => {
-                console.error("something went wrong while removing this friend");//error
+                console.error("something went wrong while doing this transaction");//error
             });
     }
 
@@ -284,8 +288,8 @@ const Platform = ({userToken}) => {
                                                 {item.usd_to_lbp?"USD to LBP":"LBP to USD"}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button' onClick={recordTransactionAction("accepted", item.id)} variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
-                                            <Button className='button' onClick={recordTransactionAction("rejected", item.id)} variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
+                                            <Button className='button' onClick={()=>{recordTransactionAction("accepted", item.id)}} variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
+                                            <Button className='button' onClick={()=>{recordTransactionAction("rejected", item.id)}} variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
                                             </div>
                                         </li>
                                     ))}
@@ -370,7 +374,7 @@ const Platform = ({userToken}) => {
                                             <span>
                                                 {item.user_name}
                                             </span>
-                                            <Button className='button'  variant="contained" size='small' onClick={() => {handleAddUser(item); handleChange(null,2)}} style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content"}}>Add</Button>
+                                            <Button className='button'  variant="contained" size='small' onClick={() => {handleAddUser(item)}} style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content"}}>Add</Button>
                                         </li>
                                     ))}
                                 </ol>
@@ -389,9 +393,8 @@ const Platform = ({userToken}) => {
                                                 {item.user_name}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button'  variant="contained" onClick={friendRequestAction("rejected",item.user_name)}size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
-
-                                            <Button className='button'  variant="contained" onClick={friendRequestAction("accepted",item.user_name)} size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
+                                            <Button className='button'  variant="contained" onClick={()=>{friendRequestAction("accepted",item.user_name); }} size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
+                                            <Button className='button'  variant="contained" onClick={()=>{friendRequestAction("rejected",item.user_name); }}size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
                                             </div>
                                         </li>
                                     ))}

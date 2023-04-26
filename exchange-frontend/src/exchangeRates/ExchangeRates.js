@@ -193,7 +193,7 @@ const ExchangeRates = () => {
 
     return (
         <div>
-            <AppBar position="static" style={{ backgroundColor: "#2c2c6c" }} >
+            <AppBar position="fixed" style={{ backgroundColor: "#2c2c6c" }} >
                 <Toolbar classes={{ root: "nav" }}>
                     <div style={{ display: "flex" }}>
                         <Typography variant="h5" style={{ marginRight: "20px" }} >Exchange Rate App</Typography>
