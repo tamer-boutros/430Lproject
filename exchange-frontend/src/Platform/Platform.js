@@ -162,7 +162,6 @@ const Platform = ({userToken}) => {
             .then(response => response.json())
             .then(data => {
                 console.log(data);//success
-                console.log("hello this is transaction was sent")
             })
             .catch((err) => {
                 console.error("something went wrong while doing this transaction");//error
