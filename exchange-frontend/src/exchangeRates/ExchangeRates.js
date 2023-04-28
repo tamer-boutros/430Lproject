@@ -198,14 +198,14 @@ const ExchangeRates = () => {
 
     return (
         <div>
-            <AppBar position="fixed" style={{ backgroundColor: "#2c2c6c" }} >
+            <AppBar className='app_bar' position="fixed" >
                 <Toolbar classes={{ root: "nav" }}>
                     <div style={{ display: "flex" }}>
-                        <Typography variant="h5" style={{ marginRight: "20px" }} >Exchange Rate App</Typography>
-                        <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#statistics">Statistics</a>
-                        <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#predictions">Predictions</a>
-                        <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#graphRates">Rates Graph</a>
-                        {userToken && <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#platform">Platform</a>}
+                        <Typography className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} >Exchange Rate App</Typography>
+                        <a className="nav_anchor" variant="h5" href="#statistics">Statistics</a>
+                        <a className="nav_anchor" variant="h5" href="#predictions">Predictions</a>
+                        <a className="nav_anchor" variant="h5" href="#graphRates">Rates Graph</a>
+                        {userToken && <a className="nav_anchor" variant="h5" href="#platform">Platform</a>}
                     </div>
 
                     <div>
