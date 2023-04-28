@@ -79,7 +79,8 @@ const ExchangeRates = () => {
 
     let [authState, setAuthState] = useState(States.PENDING);
 
-
+    // function to fetch user transactions
+    //user token is used as header
     const fetchUserTransactions = useCallback(() => {
         fetch(`${SERVER_URL}/transaction`, {
             headers: {
@@ -95,18 +96,19 @@ const ExchangeRates = () => {
         }
     }, [fetchUserTransactions, userToken]);
 
-
+// function to fetch the buy and sell rates
     function fetchRates() {
         fetch(`${SERVER_URL}/exchangerate`)
             .then(response => response.json())
             .then(data => {
                 setBuyUsdRate(data.lbp_to_usd);
                 setSellUsdRate(data.usd_to_lbp);
-                console.log(data.usd_to_lbp)
             });
     }
-    useEffect(fetchRates, []);
+    useEffect(fetchRates, [addItem]);
 
+    //function to add a transaction
+    // it uses the token in the header, and takes 3 fields, usd,lbp, and transaction type
     function addItem() {
         if (lbpInput != "" && lbpInput != NaN && usdInput != "" && usdInput != NaN) {
 
@@ -151,8 +153,10 @@ const ExchangeRates = () => {
 
     }
     // fetchRates();
-    //fetchUserTransactions();
+    // fetchUserTransactions();
 
+
+    //function to login and authenticate the user
     function login(username, password) {
         return fetch(`${SERVER_URL}/authenticate`, {
             method: "POST",
@@ -172,6 +176,7 @@ const ExchangeRates = () => {
             });
     }
 
+    //function to register the user
     function createUser(username, password) {
         return fetch(`${SERVER_URL}/newuser`, {
             method: "POST",
