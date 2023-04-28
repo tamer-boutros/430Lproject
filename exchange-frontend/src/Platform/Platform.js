@@ -60,8 +60,8 @@ const Platform = ({ userToken }) => {
                 users = data
             });
     }
-    useEffect(fetchUsers, [userToken, friendRequestAction, removeFriend]);
-    // useEffect(fetchUsers, [userToken]);
+    // useEffect(fetchUsers, [userToken, friendRequestAction, removeFriend]);
+    useEffect(fetchUsers, [userToken]);
 
 
     function fetchFriends() {
@@ -78,8 +78,8 @@ const Platform = ({ userToken }) => {
                 friends = data
             });
     }
-    useEffect(fetchFriends, [userToken, friendRequestAction, removeFriend]);
-    // useEffect(fetchFriends, [userToken]);
+    // useEffect(fetchFriends, [userToken, friendRequestAction, removeFriend]);
+    useEffect(fetchFriends, [userToken]);
 
     function fetchFriendRequests() {
         let header = { "Content-Type": "application/json" };
@@ -95,8 +95,8 @@ const Platform = ({ userToken }) => {
                 setOutgoingFriendRequests(data.filter(item => item.request_type === "outgoing"))
             });
     }
-    useEffect(fetchFriendRequests, [userToken, friendRequestAction]);
-    // useEffect(fetchFriendRequests, [userToken]);
+    // useEffect(fetchFriendRequests, [userToken, friendRequestAction]);
+    useEffect(fetchFriendRequests, [userToken]);
 
 
     function friendRequestAction(answer, senderName) {
@@ -115,6 +115,9 @@ const Platform = ({ userToken }) => {
             .then(response => response.json())
             .then(data => {
                 console.log(data);//success
+                fetchFriendRequests();
+                fetchFriends();
+                fetchUsers();
             })
             .catch((err) => {
                 console.error("something went wrong while sending the request");//error
@@ -134,6 +137,8 @@ const Platform = ({ userToken }) => {
             .then(response => response.json())
             .then(data => {
                 console.log(data);//success
+                fetchFriends();
+                fetchUsers();
             })
             .catch((err) => {
                 console.error("something went wrong while removing this friend");//error
@@ -180,7 +185,8 @@ const Platform = ({ userToken }) => {
                 setTransactionRequests(data)
             });
     }
-    useEffect(fetchTransactionRequests, [userToken, recordTransactionAction]);
+    // useEffect(fetchTransactionRequests, [userToken, recordTransactionAction]);
+    useEffect(fetchTransactionRequests, [userToken]);
 
 
     function recordTransactionAction(answer, transactionRequestId) {
@@ -199,6 +205,7 @@ const Platform = ({ userToken }) => {
             .then(response => response.json())
             .then(data => {
                 console.log(data);//success
+                fetchTransactionRequests();
             })
             .catch((err) => {
                 console.error("something went wrong while sending the answer of the transaction request");//error
