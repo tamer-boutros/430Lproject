@@ -15,7 +15,7 @@ export default function RequestTransactions({
 }) {
     let [UsdAmount, setUsdAmount] = useState("");
     let [LbpAmount, setLbpAmount] = useState("");
-    let [transactionType, setTransactionType] = useState("usd-to-lbp")
+    let [transactionType, setTransactionType] = useState(true)
     return (
         <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
             <div className="dialog-container">
@@ -38,7 +38,7 @@ export default function RequestTransactions({
                         onChange={({ target: { value } }) => setLbpAmount(value)}
                     />
                 </div>
-                <Select id="transaction-type" style={{ color: '#2c2c6c', marginBottom: '10px',  }}  defaultValue={transactionType} onChange={e => setTransactionType(e.target.value === "usd-to-lbp")}>
+                <Select id="transaction-type" style={{ color: '#2c2c6c', marginBottom: '10px',  }}  defaultValue={transactionType===true?"usd-to-lbp":"lbp-to-usd"} onChange={e => setTransactionType(e.target.value === "usd-to-lbp")}>
                             <MenuItem value="usd-to-lbp">USD to LBP</MenuItem>
                             <MenuItem value="lbp-to-usd">LBP to USD</MenuItem>
                         </Select>
