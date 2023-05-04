@@ -14,6 +14,8 @@ import { FaUserCircle } from 'react-icons/fa'
 import RequestTransactions from './RequestTransactions';
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
+import Pagination from '@mui/material/Pagination';
+
 
 
 var SERVER_URL = "http://127.0.0.1:5000"
@@ -38,9 +40,17 @@ const Platform = ({ userToken }) => {
     let [transDialogState, settransDialogState] = useState(States.PENDING);
     let [recipientName, setRecipientName] = useState("")
     let [transaction_requests, setTransactionRequests] = useState([])
+    let [paginationCount, setPaginationCount] = useState(10)
+    let [paginatedListUsers, setPaginatedListUsers] = useState([{user_name: "Not Available"}])
 
 
-
+    function handlePaginatedListUsers(pageNumber) {
+        let startIndex = (pageNumber-1)*5
+        let endIndex = pageNumber*5>filteredListUsers.length?filteredListUsers.length:pageNumber*5
+        let newListUsers = filteredListUsers.slice(startIndex, endIndex);
+        setPaginatedListUsers(newListUsers)
+        paginatedListUsers = newListUsers
+    }
 
     const handleChange = (event, newValue) => {
         setTabValue(newValue);
@@ -58,6 +68,9 @@ const Platform = ({ userToken }) => {
             .then(data => {
                 setfilteredListUsers(data)
                 users = data
+                setPaginationCount(Math.ceil(data.length/5))
+                console.log(filteredListUsers)
+                handlePaginatedListUsers(1)
             });
     }
     // useEffect(fetchUsers, [userToken, friendRequestAction, removeFriend]);
@@ -216,7 +229,7 @@ const Platform = ({ userToken }) => {
     const handleSearchUsers = () => {
         let updatedList = [...filteredListUsers];
         updatedList = updatedList.filter((item) => item.user_name.toLowerCase().indexOf(searchTermUsers.toLowerCase()) !== -1);
-        setfilteredListUsers(updatedList);
+        setPaginatedListUsers(updatedList);
     };
 
     const handleSearchFriends = () => {
@@ -241,6 +254,7 @@ const Platform = ({ userToken }) => {
             .then(response => response.json())
             .then(data => {
                 console.log(data);//success
+                fetchUsers()
             })
             .catch((err) => {
                 console.error("something went wrong while sending the add user request");//error
@@ -379,7 +393,7 @@ const Platform = ({ userToken }) => {
                             />
                             <div>
                                 <ol>
-                                    {filteredListUsers.map((item) => (
+                                    {paginatedListUsers.map((item) => (
                                         <li className='users__cards'>
                                             <FaUserCircle className='icon' />
                                             <span>
@@ -390,6 +404,10 @@ const Platform = ({ userToken }) => {
                                     ))}
                                 </ol>
                             </div>
+                            <Pagination count={paginationCount} color="primary" className='pagination' 
+                                onChange={(event,pageNumber)=> {
+                                    handlePaginatedListUsers(pageNumber)
+                                }} />
                         </div>
                     </TabPanel>
                     <TabPanel value='4'>
