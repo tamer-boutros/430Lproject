@@ -266,7 +266,7 @@ const Predictions = () => {
                     type="number"
                     value={predictionDays}
                     onChange={({ target: { value } }) => {
-                        if (value<0) {
+                        if (value<0 || value>1000) {
                             setPredictionDays(3)
                         }
                         else{

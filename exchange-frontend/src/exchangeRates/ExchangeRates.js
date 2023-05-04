@@ -280,7 +280,7 @@ const ExchangeRates = () => {
                                 type="number"
                                 value={lbpInput}
                                 onChange={({ target: { value } }) => {
-                                    if (value<0) {
+                                    if (value<0 || value>1e12) {
                                         setLbpInput("")
                                     }
                                     else{
@@ -305,7 +305,7 @@ const ExchangeRates = () => {
                                 type="number"
                                 value={usdInput}
                                 onChange={({ target: { value } }) => {
-                                    if (value<0) {
+                                    if (value<0 || value>1e12) {
                                         setUsdInput("")
                                     }
                                     else{

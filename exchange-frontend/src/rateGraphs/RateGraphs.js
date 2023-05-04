@@ -243,7 +243,7 @@ const RateGraphs = () => {
                     type="number"
                     value={graphDays}
                     onChange={({ target: { value } }) => {
-                        if (value<0) {
+                        if (value<0 || value>1000) {
                             setgraphDays(10)
                         }
                         else{
