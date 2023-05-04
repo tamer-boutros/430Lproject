@@ -26,7 +26,17 @@ export default function RequestTransactions({
                         label="UsdAmount"
                         type="number"
                         value={UsdAmount}
-                        onChange={({ target: { value } }) => setUsdAmount(value)}
+                        onChange={({ target: { value } }) => {
+                            if (value<0 || value>1e12) {
+                            setUsdAmount("")
+                        }
+                        else{
+                            setUsdAmount(value)
+                        }
+                    }}
+                    inputProps={{
+                        min: 0,
+                      }}
                     />
                 </div>
                 <div className="form-item">
@@ -35,7 +45,17 @@ export default function RequestTransactions({
                         label="LbpAmount"
                         type="number"
                         value={LbpAmount}
-                        onChange={({ target: { value } }) => setLbpAmount(value)}
+                        onChange={({ target: { value } }) => {
+                            if (value<0 || value>1e12) {
+                            setLbpAmount("")
+                        }
+                        else{
+                            setLbpAmount(value)
+                        }
+                    }}
+                    inputProps={{
+                        min: 0,
+                      }}
                     />
                 </div>
                 <Select id="transaction-type" style={{ color: '#2c2c6c', marginBottom: '10px',  }}  defaultValue={transactionType===true?"usd-to-lbp":"lbp-to-usd"} onChange={e => setTransactionType(e.target.value === "usd-to-lbp")}>
