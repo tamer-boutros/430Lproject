@@ -79,7 +79,8 @@ const ExchangeRates = () => {
 
     let [authState, setAuthState] = useState(States.PENDING);
 
-
+    // function to fetch user transactions
+    //user token is used as header
     const fetchUserTransactions = useCallback(() => {
         fetch(`${SERVER_URL}/transaction`, {
             headers: {
@@ -95,18 +96,19 @@ const ExchangeRates = () => {
         }
     }, [fetchUserTransactions, userToken]);
 
-
+// function to fetch the buy and sell rates
     function fetchRates() {
         fetch(`${SERVER_URL}/exchangerate`)
             .then(response => response.json())
             .then(data => {
                 setBuyUsdRate(data.lbp_to_usd);
                 setSellUsdRate(data.usd_to_lbp);
-                console.log(data.usd_to_lbp)
             });
     }
-    useEffect(fetchRates, []);
+    useEffect(fetchRates, [addItem]);
 
+    //function to add a transaction
+    // it uses the token in the header, and takes 3 fields, usd,lbp, and transaction type
     function addItem() {
         if (lbpInput != "" && lbpInput != NaN && usdInput != "" && usdInput != NaN) {
 
@@ -151,8 +153,10 @@ const ExchangeRates = () => {
 
     }
     // fetchRates();
-    //fetchUserTransactions();
+    // fetchUserTransactions();
 
+
+    //function to login and authenticate the user
     function login(username, password) {
         return fetch(`${SERVER_URL}/authenticate`, {
             method: "POST",
@@ -172,6 +176,7 @@ const ExchangeRates = () => {
             });
     }
 
+    //function to register the user
     function createUser(username, password) {
         return fetch(`${SERVER_URL}/newuser`, {
             method: "POST",
@@ -193,14 +198,14 @@ const ExchangeRates = () => {
 
     return (
         <div>
-            <AppBar position="static" style={{ backgroundColor: "#2c2c6c" }} >
+            <AppBar className='app_bar' position="fixed" >
                 <Toolbar classes={{ root: "nav" }}>
                     <div style={{ display: "flex" }}>
-                        <Typography variant="h5" style={{ marginRight: "20px" }} >Exchange Rate App</Typography>
-                        <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#statistics">Statistics</a>
-                        <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#predictions">Predictions</a>
-                        <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#graphRates">Rates Graph</a>
-                        {userToken && <a className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} href="#platform">Platform</a>}
+                        <Typography className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} >Exchange Rate App</Typography>
+                        <a className="nav_anchor" variant="h5" href="#statistics">Statistics</a>
+                        <a className="nav_anchor" variant="h5" href="#predictions">Predictions</a>
+                        <a className="nav_anchor" variant="h5" href="#graphRates">Rates Graph</a>
+                        {userToken && <a className="nav_anchor" variant="h5" href="#platform">Platform</a>}
                     </div>
 
                     <div>
@@ -275,7 +280,7 @@ const ExchangeRates = () => {
                                 type="number"
                                 value={lbpInput}
                                 onChange={({ target: { value } }) => {
-                                    if (value<0) {
+                                    if (value<0 || value>1e12) {
                                         setLbpInput("")
                                     }
                                     else{
@@ -300,7 +305,7 @@ const ExchangeRates = () => {
                                 type="number"
                                 value={usdInput}
                                 onChange={({ target: { value } }) => {
-                                    if (value<0) {
+                                    if (value<0 || value>1e12) {
                                         setUsdInput("")
                                     }
                                     else{

@@ -46,6 +46,7 @@ body {
   font-family: 'Roboto', sans-serif;
   color: var(--color-white);
   font-size: large;
+  margin-right: 20px;
 }
 
 
@@ -176,6 +177,15 @@ body {
 }
 
 
+.app_bar {
+  background-color: var(--color-bg-variant)!important
+}
+
+.pagination {
+    justify-self: center;
+}
+
+
 
 @media only screen and (min-width: 1400px) {
   .wrapper {
@@ -185,11 +195,19 @@ body {
   .wrapper input {
       width: 600px;
   }
+
 }
 
-@media only screen and (max-width: 1399px) and (min-width: 750px) {
+@media only screen and (max-width: 1399px) and (min-width: 350px) {
   .wrapper {
       width: 75%;
   }
+
+.nav_anchor {
+    font-size: small!important;
+    margin-right: 10px;
+    justify-self: center;
+    display: flex;
+}
 
 }

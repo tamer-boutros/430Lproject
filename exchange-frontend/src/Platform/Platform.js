@@ -10,24 +10,26 @@ import { AiOutlineInfoCircle } from 'react-icons/ai'
 import { IconButton } from '@mui/material';
 import { Tooltip } from '@mui/material'
 import { BiSearch } from 'react-icons/bi'
-import {FaUserCircle} from 'react-icons/fa'
+import { FaUserCircle } from 'react-icons/fa'
 import RequestTransactions from './RequestTransactions';
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
+import Pagination from '@mui/material/Pagination';
+
 
 
 var SERVER_URL = "http://127.0.0.1:5000"
 
 
 
-const Platform = ({userToken}) => {
+const Platform = ({ userToken }) => {
     let users = [];
     let friends = [];
     let [filteredListUsers, setfilteredListUsers] = new useState(users);
     let [filteredListFriends, setfilteredListFriends] = new useState(friends);
     let [tabValue, setTabValue] = useState("");
-    let [incomingFriendRequests, setIncomingFriendRequests] =  useState([])
-    let [outgoingFriendRequests, setOutgoingFriendRequests] =  useState([])
+    let [incomingFriendRequests, setIncomingFriendRequests] = useState(['ali'])
+    let [outgoingFriendRequests, setOutgoingFriendRequests] = useState([])
     let [searchTermUsers, setsearchTermUsers] = useState("");
     let [searchTermFriends, setsearchTermFriends] = useState("");
     const States = {
@@ -38,13 +40,20 @@ const Platform = ({userToken}) => {
     let [transDialogState, settransDialogState] = useState(States.PENDING);
     let [recipientName, setRecipientName] = useState("")
     let [transaction_requests, setTransactionRequests] = useState([])
+    let [paginationCount, setPaginationCount] = useState(10)
+    let [paginatedListUsers, setPaginatedListUsers] = useState([{user_name: "Not Available"}])
 
 
-    
+    function handlePaginatedListUsers(pageNumber) {
+        let startIndex = (pageNumber-1)*5
+        let endIndex = pageNumber*5>filteredListUsers.length?filteredListUsers.length:pageNumber*5
+        let newListUsers = filteredListUsers.slice(startIndex, endIndex);
+        setPaginatedListUsers(newListUsers)
+        paginatedListUsers = newListUsers
+    }
 
     const handleChange = (event, newValue) => {
         setTabValue(newValue);
-        //fetchUsers();
     };
 
     function fetchUsers() {
@@ -59,9 +68,14 @@ const Platform = ({userToken}) => {
             .then(data => {
                 setfilteredListUsers(data)
                 users = data
+                setPaginationCount(Math.ceil(data.length/5))
+                console.log(filteredListUsers)
+                handlePaginatedListUsers(1)
             });
     }
-    useEffect(fetchUsers, []);
+    // useEffect(fetchUsers, [userToken, friendRequestAction, removeFriend]);
+    useEffect(fetchUsers, [userToken]);
+
 
     function fetchFriends() {
         let header = { "Content-Type": "application/json" };
@@ -77,6 +91,7 @@ const Platform = ({userToken}) => {
                 friends = data
             });
     }
+    // useEffect(fetchFriends, [userToken, friendRequestAction, removeFriend]);
     useEffect(fetchFriends, [userToken]);
 
     function fetchFriendRequests() {
@@ -93,10 +108,11 @@ const Platform = ({userToken}) => {
                 setOutgoingFriendRequests(data.filter(item => item.request_type === "outgoing"))
             });
     }
-    useEffect(fetchFriendRequests, []);
+    // useEffect(fetchFriendRequests, [userToken, friendRequestAction]);
+    useEffect(fetchFriendRequests, [userToken]);
 
 
-    function friendRequestAction(answer,senderName){
+    function friendRequestAction(answer, senderName) {
         let header = { "Content-Type": "application/json" };
         if (userToken) {
             header["Authorization"] = `Bearer ${userToken}`;
@@ -112,6 +128,9 @@ const Platform = ({userToken}) => {
             .then(response => response.json())
             .then(data => {
                 console.log(data);//success
+                fetchFriendRequests();
+                fetchFriends();
+                fetchUsers();
             })
             .catch((err) => {
                 console.error("something went wrong while sending the request");//error
@@ -131,6 +150,8 @@ const Platform = ({userToken}) => {
             .then(response => response.json())
             .then(data => {
                 console.log(data);//success
+                fetchFriends();
+                fetchUsers();
             })
             .catch((err) => {
                 console.error("something went wrong while removing this friend");//error
@@ -160,7 +181,7 @@ const Platform = ({userToken}) => {
                 console.log(data);//success
             })
             .catch((err) => {
-                console.error("something went wrong while removing this friend");//error
+                console.error("something went wrong while doing this transaction");//error
             });
     }
 
@@ -177,13 +198,38 @@ const Platform = ({userToken}) => {
                 setTransactionRequests(data)
             });
     }
-    useEffect(fetchTransactionRequests, []);
+    // useEffect(fetchTransactionRequests, [userToken, recordTransactionAction]);
+    useEffect(fetchTransactionRequests, [userToken]);
+
+
+    function recordTransactionAction(answer, transactionRequestId) {
+        let header = { "Content-Type": "application/json" };
+        if (userToken) {
+            header["Authorization"] = `Bearer ${userToken}`;
+        }
+        let status = {
+            status: answer
+        }
+        fetch(`${SERVER_URL}/transaction_request/${transactionRequestId}`, {
+            method: "POST",
+            headers: header,
+            body: JSON.stringify(status),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);//success
+                fetchTransactionRequests();
+            })
+            .catch((err) => {
+                console.error("something went wrong while sending the answer of the transaction request");//error
+            });
+    }
 
 
     const handleSearchUsers = () => {
         let updatedList = [...filteredListUsers];
         updatedList = updatedList.filter((item) => item.user_name.toLowerCase().indexOf(searchTermUsers.toLowerCase()) !== -1);
-        setfilteredListUsers(updatedList);
+        setPaginatedListUsers(updatedList);
     };
 
     const handleSearchFriends = () => {
@@ -194,28 +240,29 @@ const Platform = ({userToken}) => {
 
     const handleAddUser = (user) => {
         let header = { "Content-Type": "application/json" };
-            if (userToken) {
-                header["Authorization"] = `Bearer ${userToken}`;
-            }
-            let friendToAdd = {
-                friend_name:user.user_name,
-            }
-            fetch(`${SERVER_URL}/users/add_friend`, {
-                method: "POST",
-                headers: header,
-                body: JSON.stringify(friendToAdd),
+        if (userToken) {
+            header["Authorization"] = `Bearer ${userToken}`;
+        }
+        let friendToAdd = {
+            friend_name: user.user_name,
+        }
+        fetch(`${SERVER_URL}/users/add_friend`, {
+            method: "POST",
+            headers: header,
+            body: JSON.stringify(friendToAdd),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);//success
+                fetchUsers()
             })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);//success
-                })
-                .catch((err) => {
-                    console.error("something went wrong while sending the request");//error
-                });
+            .catch((err) => {
+                console.error("something went wrong while sending the add user request");//error
+            });
     }
 
-      
-    
+
+
     return (<div>{
         userToken && (
             <div id="platform" className="wrapper">
@@ -241,14 +288,16 @@ const Platform = ({userToken}) => {
                     </TabList>
                     <TabPanel value='1'>
                         <div className="platform__cards">
-                        Transaction Requests
+                            Transaction Requests
                             <div className='platform__cards'>
                                 <ol>
                                     {transaction_requests.map((item) => (
-                                        <li className='users__cards'>
-                                            <FaUserCircle className='icon'/>
+                                        <div>
+                                        { item.status !=="rejected" ?
+                                        (<li className='users__cards'>
+                                            <FaUserCircle className='icon' />
                                             <span>
-                                                {item.id}
+                                                {item.sender_id}
                                             </span>
                                             <span>
                                                 {item.usd_amount}$
@@ -257,13 +306,17 @@ const Platform = ({userToken}) => {
                                                 {item.lbp_amount}L.L
                                             </span>
                                             <span>
-                                                {item.usd_to_lbp?"USD to LBP":"LBP to USD"}
+                                                {item.usd_to_lbp ? "USD to LBP" : "LBP to USD"}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
-                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
+                                            { item.status !== "accepted"?
+                                                <div>
+                                                    <Button className='button' onClick={() => { recordTransactionAction("accepted", item.id) }} variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px" }}>Accept</Button>
+                                                    <Button className='button' onClick={() => { recordTransactionAction("rejected", item.id) }} variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content" }}>Reject</Button>
+                                                </div>: <></>
+                                            }
                                             </div>
-                                        </li>
+                                        </li>):<></>}</div>
                                     ))}
                                 </ol>
                             </div>
@@ -272,7 +325,7 @@ const Platform = ({userToken}) => {
                     </TabPanel>
 
                     <TabPanel value='2'>
-                    <div className="platform__cards">
+                        <div className="platform__cards">
                             <TextField
                                 fullWidth
                                 placeholder="Search..."
@@ -282,12 +335,12 @@ const Platform = ({userToken}) => {
                                     if (value == "") {
                                         fetchFriends()
                                     }
-                                    else{
+                                    else {
                                         handleSearchFriends()
                                     }
                                 }}
                                 InputProps={{
-                                    startAdornment: <BiSearch className='icon'/>,
+                                    startAdornment: <BiSearch className='icon' />,
                                     style: { color: 'white' },
                                 }}
                                 InputLabelProps={{
@@ -299,13 +352,13 @@ const Platform = ({userToken}) => {
                                 <ol>
                                     {filteredListFriends.map((item) => (
                                         <li className='users__cards'>
-                                            <FaUserCircle className='icon'/>
+                                            <FaUserCircle className='icon' />
                                             <span>
                                                 {item.user_name}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button'  variant="contained" size='small' onClick={()=>{setRecipientName(item.user_name);settransDialogState(States.RECORDING)}} style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Record</Button>
-                                            <Button className='button'  variant="contained" size='small' onClick={()=>{removeFriend(item.id); fetchFriends()}} style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Remove</Button>
+                                                <Button className='button' variant="contained" size='small' onClick={() => { setRecipientName(item.user_name); settransDialogState(States.RECORDING) }} style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px" }}>Record</Button>
+                                                <Button className='button' variant="contained" size='small' onClick={() => { removeFriend(item.id); fetchFriends() }} style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content" }}>Remove</Button>
                                             </div>
                                         </li>
                                     ))}
@@ -325,12 +378,12 @@ const Platform = ({userToken}) => {
                                     if (value === "") {
                                         fetchUsers()
                                     }
-                                    else{
+                                    else {
                                         handleSearchUsers()
                                     }
                                 }}
                                 InputProps={{
-                                    startAdornment: <BiSearch className='icon'/>,
+                                    startAdornment: <BiSearch className='icon' />,
                                     style: { color: 'white' },
                                 }}
                                 InputLabelProps={{
@@ -340,17 +393,21 @@ const Platform = ({userToken}) => {
                             />
                             <div>
                                 <ol>
-                                    {filteredListUsers.map((item) => (
+                                    {paginatedListUsers.map((item) => (
                                         <li className='users__cards'>
-                                            <FaUserCircle className='icon'/>
+                                            <FaUserCircle className='icon' />
                                             <span>
                                                 {item.user_name}
                                             </span>
-                                            <Button className='button'  variant="contained" size='small' onClick={() => {handleAddUser(item); handleChange(null,2)}} style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content"}}>Add</Button>
+                                            <Button className='button' variant="contained" size='small' onClick={() => { handleAddUser(item) }} style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content" }}>Add</Button>
                                         </li>
                                     ))}
                                 </ol>
                             </div>
+                            <Pagination count={paginationCount} color="primary" className='pagination' 
+                                onChange={(event,pageNumber)=> {
+                                    handlePaginatedListUsers(pageNumber)
+                                }} />
                         </div>
                     </TabPanel>
                     <TabPanel value='4'>
@@ -360,13 +417,13 @@ const Platform = ({userToken}) => {
                                 <ol>
                                     {incomingFriendRequests.map((item) => (
                                         <li className='users__cards'>
-                                            <FaUserCircle className='icon'/>
+                                            <FaUserCircle className='icon' />
                                             <span>
                                                 {item.user_name}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button'  variant="contained" onClick={friendRequestAction("accepted",item.user_name)} size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px"}}>Accept</Button>
-                                            <Button className='button'  variant="contained" onClick={friendRequestAction("rejected",item.user_name)}size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Reject</Button>
+                                                <Button className='button' variant="contained" onClick={() => { friendRequestAction("accepted", item.user_name); }} size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px" }}>Accept</Button>
+                                                <Button className='button' variant="contained" onClick={() => { friendRequestAction("rejected", item.user_name); }} size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content" }}>Reject</Button>
                                             </div>
                                         </li>
                                     ))}
@@ -377,12 +434,12 @@ const Platform = ({userToken}) => {
                                 <ol>
                                     {outgoingFriendRequests.map((item) => (
                                         <li className='users__cards'>
-                                            <FaUserCircle className='icon'/>
+                                            <FaUserCircle className='icon' />
                                             <span>
                                                 {item.user_name}
                                             </span>
                                             <div className='friends__buttons'>
-                                            <Button className='button'  variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content"}}>Remove</Button>
+                                                <Button className='button' variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content" }}>Remove</Button>
                                             </div>
                                         </li>
                                     ))}
@@ -410,7 +467,7 @@ const Platform = ({userToken}) => {
                 </Snackbar>
             </div>
         )
-                                    }</div>
+    }</div>
     )
 }
 

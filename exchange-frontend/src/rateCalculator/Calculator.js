@@ -52,8 +52,9 @@ export default function Calculator(
           id='text-field-amount'
           label="Amount"
           type="number"
+          value={enteredAmount}
           onChange={({ target: { value } }) => {
-            if (value<0) {
+            if (value<0 || value>1e12) {
               setEnteredAmount("")
             }
             else{
