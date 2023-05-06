@@ -36,6 +36,7 @@ const ExchangeRates = () => {
     let [errorMsg, setErrorMsg] = useState("");//this one is used when adding a transaction with an input missing
     let [userToken, setUserToken] = useState(getUserToken());
     let [userTransactions, setUserTransactions] = useState([]);
+    let [errorMsgLogin, setErrorMsgLogin] = useState("")
 
     const States = {
         PENDING: "PENDING",
@@ -173,7 +174,11 @@ const ExchangeRates = () => {
                 setAuthState(States.USER_AUTHENTICATED);
                 setUserToken(body.token);
                 saveUserToken(body.token);
-            });
+                setErrorMsgLogin("");
+            })
+            .catch((err) => {
+                setErrorMsgLogin("incorrect username or password")
+            });;
     }
 
     //function to register the user
@@ -340,6 +345,7 @@ const ExchangeRates = () => {
                     onSubmit={login}
                     title="Enter your credentials"
                     submitText="Login"
+                    errorMsgLogin={errorMsgLogin}
                 />
                 <Snackbar
                     elevation={6}

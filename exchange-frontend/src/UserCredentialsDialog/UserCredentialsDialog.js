@@ -11,6 +11,7 @@ export default function UserCredentialsDialog({
     onClose,
     title,
     submitText,
+    errorMsgLogin
 }) {
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
@@ -43,6 +44,7 @@ export default function UserCredentialsDialog({
                 >
                     {submitText}
                 </Button>
+                <p style={{ color: "red" }}>{errorMsgLogin}</p>
             </div>
         </Dialog>
     );
