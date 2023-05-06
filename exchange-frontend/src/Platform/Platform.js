@@ -273,6 +273,7 @@ const Platform = ({ userToken }) => {
             .then(data => {
                 console.log(data);//success
                 fetchUsers()
+                fetchFriendRequests()
             })
             .catch((err) => {
                 console.error("something went wrong while sending the add user request");//error
@@ -460,9 +461,6 @@ const Platform = ({ userToken }) => {
                                             <span>
                                                 {item.user_name}
                                             </span>
-                                            <div className='friends__buttons'>
-                                                <Button className='button' variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content" }}>Remove</Button>
-                                            </div>
                                         </li>
                                     ))}
                                 </ol>
