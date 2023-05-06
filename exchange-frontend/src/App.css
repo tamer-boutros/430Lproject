@@ -92,6 +92,7 @@ body {
   margin-bottom: 20px;
   padding: 0px 10px;
   width: fill;
+  margin-top: 10px;
  }
 
 .button:hover {
@@ -182,12 +183,39 @@ body {
 }
 
 .pagination {
-    justify-self: center;
+    display: flex;
+    justify-content: center;
+}
+
+.MuiPaginationItem-root {
+  color: white!important;
 }
 
 
 
-@media only screen and (min-width: 1400px) {
+@media only screen and (max-width: 1000px) and (min-width: 600px) {
+  .wrapper {
+      width: 90%;
+  }
+
+  .wrapper input {
+      width: 600px;
+  }
+
+}
+
+@media only screen and (max-width: 1400px) and (min-width: 1000px) {
+  .wrapper {
+      width: 70%;
+  }
+
+  .wrapper input {
+      width: 600px;
+  }
+
+}
+
+@media only screen and (max-width: 1800px) and (min-width: 1400px) {
   .wrapper {
       width: 50%;
   }
@@ -198,9 +226,10 @@ body {
 
 }
 
-@media only screen and (max-width: 1399px) and (min-width: 350px) {
+@media only screen and (max-width: 600px) and (min-width: 350px) {
   .wrapper {
-      width: 75%;
+      width: 85%;
+      padding: 10px 10px 10px 10px;
   }
 
 .nav_anchor {
@@ -209,5 +238,10 @@ body {
     justify-self: center;
     display: flex;
 }
+
+.rates__card {
+  grid-template-columns: repeat(1,1fr);
+}
+
 
 }

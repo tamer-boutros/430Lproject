@@ -201,14 +201,14 @@ const ExchangeRates = () => {
             <AppBar className='app_bar' position="fixed" >
                 <Toolbar classes={{ root: "nav" }}>
                     <div style={{ display: "flex" }}>
-                        <a className="nav_anchor" variant="h5" href="#home">Exchange Rate App</a>
+                        <a className="nav_anchor" variant="h5" href="#home">Home</a>
                         <a className="nav_anchor" variant="h5" href="#statistics">Statistics</a>
                         <a className="nav_anchor" variant="h5" href="#predictions">Predictions</a>
                         <a className="nav_anchor" variant="h5" href="#graphRates">Rates Graph</a>
                         {userToken && <a className="nav_anchor" variant="h5" href="#platform">Platform</a>}
                     </div>
 
-                    <div>
+                    <div className="nav_anchor">
                         {userToken !== null ? (
                             <Button color="inherit" onClick={logout}>
                                 Logout

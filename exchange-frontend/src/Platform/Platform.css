@@ -1,10 +1,7 @@
-
-
-
-.platform__cards {
+/* .platform__cards {
     display: grid;
     grid-template-columns: repeat(1,1fr);
-}
+} */
 
 .platform__cards {
     background: var(--color-bg-variant);
@@ -39,5 +36,22 @@
     grid-template-columns: repeat(2,1fr);
     gap: 0.1rem; 
     justify-items: center;
+}
+
+@media only screen and (max-width: 600px) and (min-width: 350px) {
+    .platform__cards {
+        padding: 0.5rem;
+    }
+    .users__cards {
+        transition: var(--transition);
+        margin-top:1rem;
+        margin-left: 0rem;
+        margin-right: 0rem;
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: .5rem; 
+        justify-items: center;
+    }
+
 }
   

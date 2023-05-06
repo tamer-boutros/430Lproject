@@ -1,6 +1,6 @@
 .predictions__card {
     display: grid;
-    grid-template-columns: repeat(2,1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
 }
 
@@ -21,7 +21,7 @@
 }
 
 .predictions__icon {
-    color:var(--color-bg-light);
+    color: var(--color-bg-light);
     font-size: 1.4rem;
     margin-bottom: 1rem;
 
@@ -47,14 +47,14 @@
 }
 
 .predictions__cards:hover .predictions__icon {
-    color:var(--color-bg-variant);
+    color: var(--color-bg-variant);
 }
 
 
-.predictions__chart__card {
+/* .predictions__chart__card {
     display: grid;
-    grid-template-columns: repeat(1,1fr);
-}
+    grid-template-columns: repeat(1, 1fr);
+} */
 
 .predictions__chart__cards {
     background: var(--color-bg-variant);
@@ -65,12 +65,30 @@
     transition: var(--transition);
     margin-bottom: 1rem;
 }
+
 /*from https://github.com/apexcharts/vue-apexcharts/issues/114
 2hrs to fix it :)
 */
-.apexcharts-menu{
-    background-color: var(--color-white)!important;
-    color: var(--color-bg-variant)!important;
+.apexcharts-menu {
+    background-color: var(--color-white) !important;
+    color: var(--color-bg-variant) !important;
     border: 0px;
+}
+
+@media only screen and (max-width: 600px) and (min-width: 350px) {
+    .predictions__chart__cards {
+        padding: 0rem;
+        width: max-content;
+        margin-top: 1rem;
     }
-  
+
+    .MuiTabPanel-root {
+        padding: 0px!important;
+    }
+
+    .MuiTab-root {
+        font-size: x-small!important;
+      }
+      
+
+}

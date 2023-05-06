@@ -49,3 +49,10 @@
 .statistics__cards:hover .statistics__icon {
     color:var(--color-bg-variant);
 } 
+
+@media only screen and (max-width: 600px) and (min-width: 350px) {
+    .statistics__card {
+        grid-template-columns: repeat(1,1fr);
+    }
+  
+  }
