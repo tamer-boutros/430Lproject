@@ -41,7 +41,7 @@ class TransactionRequests(db.Model):
     
 class TransactionRequestSchema(ma.Schema):
     class Meta:
-        fields = ("id", "sender_id", "recipient_id", "usd_amount", "lbp_amount", "usd_to_lbp", "status", "added_date")
+        fields = ("id", "sender_id", "sender_NAME","recipient_id", "usd_amount", "lbp_amount", "usd_to_lbp", "status", "added_date")
         model = TransactionRequests
 transaction_request_schema = TransactionRequestSchema()
 transaction_requests_schema = TransactionRequestSchema(many=True)

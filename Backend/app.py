@@ -45,9 +45,24 @@ from .model.transaction import Transaction, TransactionRequestSchema, Transactio
 def create_transaction():
     
 
-    usd_amount = request.json['usd_amount']
-    lbp_amount = request.json['lbp_amount']
-    usd_to_lbp = request.json['usd_to_lbp']
+    usd_amount = request.json.get('usd_amount')
+    lbp_amount = request.json.get('lbp_amount')
+    usd_to_lbp = request.json.get('usd_to_lbp')
+
+    # Validate usd_amount and lbp_amount
+    try:
+        usd_amount = float(usd_amount)
+        lbp_amount = float(lbp_amount)
+        usd_to_lbp = int(usd_to_lbp)
+        
+        if usd_amount <= 0 or lbp_amount <= 0:
+            abort(400, 'usd_amount and lbp_amount must be positive')
+            
+        if usd_to_lbp not in [0, 1]:
+            abort(400, 'usd_to_lbp must be a boolean (0 for false, 1 for true)')
+     
+    except (ValueError, TypeError):
+        abort(400, 'usd_amount and lbp_amount must be floats')
     
     if extract_auth_token(request):
        if decode_token(extract_auth_token(request)):
@@ -467,7 +482,7 @@ def getexchangerates(num_days):
 
 
 
-#Friend Manageemnt APIS
+#Friend Management APIS
 
 #Get all friends
 @app.route('/users/friends', methods=['GET'])
@@ -494,16 +509,12 @@ def get_friends():
         abort(401, 'Authentication token is missing or invalid.')
     
    
-    
-
-
-
-
 
 
 #Add friend
 @app.route('/users/add_friend', methods=['POST'])
 def add_friend():
+    
     if extract_auth_token(request):
         
         if decode_token(extract_auth_token(request)):
@@ -687,9 +698,27 @@ def create_transaction_request():
             
             sender_id = user_id
             recipient_username = request.json['recipient_username']
-            usd_amount = request.json['usd_amount']
-            lbp_amount = request.json['lbp_amount']
-            usd_to_lbp = request.json['usd_to_lbp']
+            usd_amount = request.json.get('usd_amount')
+            lbp_amount = request.json.get('lbp_amount')
+            usd_to_lbp = request.json.get('usd_to_lbp')
+
+            # Validate usd_amount and lbp_amount
+            try:
+                usd_amount = float(usd_amount)
+                lbp_amount = float(lbp_amount)
+                usd_to_lbp = int(usd_to_lbp)
+                
+                if usd_amount <= 0 or lbp_amount <= 0:
+                    abort(400, 'usd_amount and lbp_amount must be positive')
+                    
+                if usd_to_lbp not in [0, 1]:
+                    abort(400, 'usd_to_lbp must be a boolean (0 for false, 1 for true)')
+            
+            except (ValueError, TypeError):
+                abort(400, 'usd_amount and lbp_amount must be floats')
+    
+            if not all([usd_amount, lbp_amount, usd_to_lbp]):
+                abort(400, 'Invalid input data')
             
             if not (sender_id and recipient_username):
                 
@@ -747,14 +776,37 @@ def get_transaction_requests():
             if not user_id:
                 
                 abort(403)
-            
+                
+            trans = []
+ 
+       #query transaction requests from the database for the recipient id
             transaction_requests = TransactionRequests.query.filter_by(recipient_id=user_id).all()
             
-            return transaction_requests_schema.jsonify(transaction_requests), 200
+            
+            for t in transaction_requests:
+                sender = User.query.filter_by(id=TransactionRequests.sender_id).first()
+                sender_name = sender.user_name
+                trans.append({
+                    'trans_req_id':t.id,
+                    'sender_id':t.sender_id,
+                    'sender_name': sender_name,
+                    'recipient_id':t.recipient_id,
+                    'usd_amount':t.usd_amount,
+                    'lbp_amount':t.lbp_amount,
+                    'usd_to_lbp':t.usd_to_lbp,
+                    'status':t.status,
+                    'added_date':t.added_date
+                })
+                
+            return jsonify( trans), 200
+                
+
         
     else:
         
-        abort(401, 'Authentication token is missing or invalid.')
+         abort(401, 'Authentication token is missing or invalid.')
+
+
 
 
 
@@ -787,6 +839,9 @@ def update_transaction_request_status(request_id):
                 return jsonify({'error': 'Transaction request is already {}'.format(transaction_request.status)}), 400
 
             status = request.json['status']
+            if status not in ['accepted', 'rejected']:
+                return jsonify({'error': 'Invalid status value. Only "accepted" and "rejected" are allowed.'}), 400
+
 
             if status == 'accepted':
                 # Create new transaction objects
@@ -827,7 +882,7 @@ def update_transaction_request_status(request_id):
 
 
 #Fetch all users that are not friends with the current user
-@app.route('/users', methods=['GET'])
+@app.route('/users/nonfriends', methods=['GET'])
 def get_non_friend_users():
     
     if extract_auth_token(request):
@@ -843,9 +898,10 @@ def get_non_friend_users():
 
     # Fetch users who are not friends with the current user
             friends_subquery = db.session.query(Friend.user_id).filter(Friend.friend_id == user_id).union(
-                db.session.query(Friend.friend_id).filter(Friend.user_id == user_id)).subquery()
+                            db.session.query(Friend.friend_id).filter(Friend.user_id == user_id)).subquery()
 
-            non_friend_users = User.query.filter(User.id != user_id, User.id.notin_(friends_subquery)).all()
+            non_friend_users = User.query.filter(User.id != user_id, User.id.notin_(friends_subquery.select())).all()
+
 
             # Convert results to JSON
             result = [{"id": user.id, "user_name": user.user_name} for user in non_friend_users]
