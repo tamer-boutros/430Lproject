@@ -74,7 +74,7 @@ const Platform = ({ userToken }) => {
         if (userToken) {
             header["Authorization"] = `Bearer ${userToken}`;
         }
-        fetch(`${SERVER_URL}/users`, {
+        fetch(`${SERVER_URL}/users/nonfriends`, {
             headers: header
         })
             .then(response => response.json())
