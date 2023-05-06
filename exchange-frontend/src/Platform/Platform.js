@@ -40,8 +40,10 @@ const Platform = ({ userToken }) => {
     let [transDialogState, settransDialogState] = useState(States.PENDING);
     let [recipientName, setRecipientName] = useState("")
     let [transaction_requests, setTransactionRequests] = useState([])
-    let [paginationCount, setPaginationCount] = useState(10)
+    let [paginationCountUsers, setPaginationCountUsers] = useState(10)
     let [paginatedListUsers, setPaginatedListUsers] = useState([{user_name: "Not Available"}])
+    let [paginationCountFriends, setPaginationCountFriends] = useState(10)
+    let [paginatedListFriends, setPaginatedListFriends] = useState([{user_name: "Not Available"}])
 
 
     function handlePaginatedListUsers(pageNumber) {
@@ -51,6 +53,17 @@ const Platform = ({ userToken }) => {
         setPaginatedListUsers(newListUsers)
         paginatedListUsers = newListUsers
     }
+    useEffect(handlePaginatedListUsers, [userToken]);
+
+    function handlePaginatedListFriends(pageNumber) {
+        let startIndex = (pageNumber-1)*3
+        let endIndex = pageNumber*3>filteredListFriends.length?filteredListFriends.length:pageNumber*3
+        let newListFriends = filteredListFriends.slice(startIndex, endIndex);
+        setPaginatedListFriends(newListFriends)
+        paginatedListFriends = newListFriends
+    }
+    useEffect(handlePaginatedListFriends, [userToken]);
+
 
     const handleChange = (event, newValue) => {
         setTabValue(newValue);
@@ -68,8 +81,8 @@ const Platform = ({ userToken }) => {
             .then(data => {
                 setfilteredListUsers(data)
                 users = data
-                setPaginationCount(Math.ceil(data.length/5))
-                console.log(filteredListUsers)
+                filteredListUsers = data
+                setPaginationCountUsers(Math.ceil(data.length/5))
                 handlePaginatedListUsers(1)
             });
     }
@@ -89,6 +102,9 @@ const Platform = ({ userToken }) => {
             .then(data => {
                 setfilteredListFriends(data)
                 friends = data
+                filteredListFriends = data
+                setPaginationCountFriends(Math.ceil(data.length/3))
+                handlePaginatedListFriends(1)
             });
     }
     // useEffect(fetchFriends, [userToken, friendRequestAction, removeFriend]);
@@ -106,6 +122,8 @@ const Platform = ({ userToken }) => {
             .then(data => {
                 setIncomingFriendRequests(data.filter(item => item.request_type === "incoming"))
                 setOutgoingFriendRequests(data.filter(item => item.request_type === "outgoing"))
+                incomingFriendRequests = data.filter(item => item.request_type === "incoming")
+                outgoingFriendRequests = data.filter(item => item.request_type === "outgoing")
             });
     }
     // useEffect(fetchFriendRequests, [userToken, friendRequestAction]);
@@ -235,7 +253,7 @@ const Platform = ({ userToken }) => {
     const handleSearchFriends = () => {
         let updatedListFriends = [...filteredListFriends];
         updatedListFriends = updatedListFriends.filter((item) => item.user_name.toLowerCase().indexOf(searchTermFriends.toLowerCase()) !== -1);
-        setfilteredListFriends(updatedListFriends);
+        setPaginatedListFriends(updatedListFriends);
     };
 
     const handleAddUser = (user) => {
@@ -350,7 +368,7 @@ const Platform = ({ userToken }) => {
                             />
                             <div>
                                 <ol>
-                                    {filteredListFriends.map((item) => (
+                                    {paginatedListFriends.map((item) => (
                                         <li className='users__cards'>
                                             <FaUserCircle className='icon' />
                                             <span>
@@ -364,6 +382,10 @@ const Platform = ({ userToken }) => {
                                     ))}
                                 </ol>
                             </div>
+                            <Pagination count={paginationCountFriends} color="primary" className='pagination' 
+                                onChange={(event,pageNumber)=> {
+                                    handlePaginatedListFriends(pageNumber)
+                                }} />
                         </div>
                     </TabPanel>
 
@@ -404,7 +426,7 @@ const Platform = ({ userToken }) => {
                                     ))}
                                 </ol>
                             </div>
-                            <Pagination count={paginationCount} color="primary" className='pagination' 
+                            <Pagination count={paginationCountUsers} color="primary" className='pagination' 
                                 onChange={(event,pageNumber)=> {
                                     handlePaginatedListUsers(pageNumber)
                                 }} />

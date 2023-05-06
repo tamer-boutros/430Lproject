@@ -201,7 +201,7 @@ const ExchangeRates = () => {
             <AppBar className='app_bar' position="fixed" >
                 <Toolbar classes={{ root: "nav" }}>
                     <div style={{ display: "flex" }}>
-                        <Typography className="nav_anchor" variant="h5" style={{ marginRight: "20px" }} >Exchange Rate App</Typography>
+                        <a className="nav_anchor" variant="h5" href="#home">Exchange Rate App</a>
                         <a className="nav_anchor" variant="h5" href="#statistics">Statistics</a>
                         <a className="nav_anchor" variant="h5" href="#predictions">Predictions</a>
                         <a className="nav_anchor" variant="h5" href="#graphRates">Rates Graph</a>
@@ -232,7 +232,7 @@ const ExchangeRates = () => {
                     </div>
                 </Toolbar>
             </AppBar>
-            <div className="wrapper">
+            <div id='home' className="wrapper">
                 <Typography variant="h4">Today's Exchange Rate</Typography>
                 <p>LBP to USD Exchange Rate</p>
 
