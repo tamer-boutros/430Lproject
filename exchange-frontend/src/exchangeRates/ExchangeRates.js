@@ -89,7 +89,10 @@ const ExchangeRates = () => {
             },
         })
             .then((response) => response.json())
-            .then((transactions) => setUserTransactions(transactions));
+            .then((transactions) => {
+                setUserTransactions(transactions);
+                userTransactions = transactions;
+            });
     }, [userToken]);
     useEffect(() => {
         if (userToken) {
@@ -104,6 +107,8 @@ const ExchangeRates = () => {
             .then(data => {
                 setBuyUsdRate(data.lbp_to_usd);
                 setSellUsdRate(data.usd_to_lbp);
+                buyUsdRate = (data.lbp_to_usd);
+                sellUsdRate = (data.usd_to_lbp);
             });
     }
     useEffect(fetchRates, [addItem]);

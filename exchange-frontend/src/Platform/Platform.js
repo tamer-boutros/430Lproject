@@ -330,8 +330,8 @@ const Platform = ({ userToken }) => {
                                             <div className='friends__buttons'>
                                             { item.status !== "accepted"?
                                                 <div>
-                                                    <Button className='button' onClick={() => { recordTransactionAction("accepted", item.id) }} variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px" }}>Accept</Button>
-                                                    <Button className='button' onClick={() => { recordTransactionAction("rejected", item.id) }} variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content" }}>Reject</Button>
+                                                    <Button className='button' onClick={() => { recordTransactionAction("accepted", item.trans_req_id) }} variant="contained" size='small' style={{ backgroundColor: "white", color: "#2c2c6c", fontWeight: "bold", width: "fit-content", marginInline: "4px" }}>Accept</Button>
+                                                    <Button className='button' onClick={() => { recordTransactionAction("rejected", item.trans_req_id) }} variant="contained" size='small' style={{ backgroundColor: "red", color: 'white', fontWeight: "bold", width: "fit-content" }}>Reject</Button>
                                                 </div>: <></>
                                             }
                                             </div>
