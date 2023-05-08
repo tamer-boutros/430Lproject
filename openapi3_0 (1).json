@@ -1,0 +1,1166 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Currency Exchange",
+    "version": "1.0.0",
+    "description": "App for viewing exchange rates, statistics, and transactions."
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000/"
+    },
+    {
+      "url": "https://project430l.herokuapp.com"
+    }
+  ],
+  "paths": {
+    "/transaction": {
+      "post": {
+        "tags": [
+          "Transactions"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create a new transaction",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "usd_amount": {
+                    "type": "number",
+                    "description": "The amount of USD to be exchanged"
+                  },
+                  "lbp_amount": {
+                    "type": "number",
+                    "description": "The amount of LBP to be exchanged"
+                  },
+                  "usd_to_lbp": {
+                    "type": "boolean",
+                    "description": "Indicates whether the exchange is from USD to LBP"
+                  }
+                },
+                "required": [
+                  "usd_amount",
+                  "lbp_amount",
+                  "usd_to_lbp"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created a new transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "usd_amount": {
+                      "type": "number",
+                      "description": "The amount of USD exchanged"
+                    },
+                    "lbp_amount": {
+                      "type": "number",
+                      "description": "The amount of LBP exchanged"
+                    },
+                    "usd_to_lbp": {
+                      "type": "boolean",
+                      "description": "Indicates whether the exchange was from USD to LBP"
+                    }
+                  }
+                },
+                "example": {
+                  "usd_amount": 100,
+                  "lbp_amount": 150000,
+                  "usd_to_lbp": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Get all transactions for a user",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "usd_amount": {
+                        "type": "number",
+                        "description": "The amount of USD exchanged"
+                      },
+                      "lbp_amount": {
+                        "type": "number",
+                        "description": "The amount of LBP exchanged"
+                      },
+                      "usd_to_lbp": {
+                        "type": "boolean",
+                        "description": "Indicates whether the exchange was from USD to LBP"
+                      }
+                    },
+                    "example": [
+                      {
+                        "usd_amount": 100,
+                        "lbp_amount": 150000,
+                        "usd_to_lbp": true
+                      },
+                      {
+                        "usd_amount": 200,
+                        "lbp_amount": 300000,
+                        "usd_to_lbp": false
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exchangerate": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get the average exchange rate for the past 100 days",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the average exchange rate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "usd_to_lbp": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "The average exchange rate from USD to LBP"
+                    },
+                    "lbp_to_usd": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "The average exchange rate from LBP to USD"
+                    }
+                  }
+                },
+                "example": {
+                  "usd_to_lbp": 1500,
+                  "lbp_to_usd": 0.0006
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/getrates/{num_days}": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Get average sell and buy exchange rates for a given number of days",
+        "parameters": [
+          {
+            "name": "num_days",
+            "in": "path",
+            "description": "Number of days to retrieve exchange rates for",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "avg_sell": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "value": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "avg_buy": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "value": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newuser": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Create a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_name": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "user_name",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "user_name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/authenticate": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Authenticate user",
+        "description": "Authenticate user with provided username and password.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_name": {
+                    "type": "string",
+                    "description": "The user's username."
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "The user's password."
+                  }
+                },
+                "required": [
+                  "user_name",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "The JWT token to use for authenticated requests."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "An error message explaining the reason for the authentication failure."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/best_time": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Get the best time to buy and sell USD",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "avg_sell_time": {
+                      "type": "string",
+                      "format": "time"
+                    },
+                    "avg_buy_time": {
+                      "type": "string",
+                      "format": "time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/{days}": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Predict future values",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "path",
+            "description": "Number of days to predict",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "future_sell": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "value": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "description": "Future sell values and dates"
+                    },
+                    "future_buy": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "value": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "description": "Future buy values and dates"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Get transaction statistics",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sellusd": {
+                      "type": "object",
+                      "properties": {
+                        "average": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "median": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "stddev": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "volatility": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "total_usd_volume": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "total_lbp_volume": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "description": "Statistics for sell USD transactions"
+                    },
+                    "buyusd": {
+                      "type": "object",
+                      "properties": {
+                        "average": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "median": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "stddev": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "volatility": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "total_usd_volume": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "total_lbp_volume": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "description": "Statistics for buy USD transactions"
+                    },
+                    "total_usd_volume": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Total USD volume"
+                    },
+                    "total_lbp_volume": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Total LBP volume"
+                    },
+                    "total_number_of_transactions": {
+                      "type": "number",
+                      "nullable": true,
+                      "description": "Total number of transactions"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/add_friend": {
+      "post": {
+        "summary": "Sends a friend request to another user",
+        "tags": [
+          "Friend Management"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "friend_name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "friend_name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Friend request sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "sent"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A friend request has already been sent to the specified user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User ID could not be decoded from authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/friend_requests": {
+      "get": {
+        "summary": "Retrieves a list of incoming and outgoing friend requests for the authenticated user",
+        "tags": [
+          "Friend Management"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of incoming and outgoing friend requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "user_name": {
+                        "type": "string"
+                      },
+                      "request_type": {
+                        "type": "string",
+                        "enum": [
+                          "incoming",
+                          "outgoing"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User ID could not be decoded from authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/request_action/{sender_name}": {
+      "put": {
+        "summary": "Accept or reject a friend request",
+        "tags": [
+          "Friend Management"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sender_name",
+            "description": "The username of the user who sent the friend request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Status of the friend request (accepted or rejected)",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "accepted",
+                      "rejected"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Friend request accepted or rejected"
+          },
+          "400": {
+            "description": "Invalid request body or status parameter"
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid"
+          },
+          "403": {
+            "description": "User is not authorized to perform this action"
+          },
+          "404": {
+            "description": "User or friend request not found"
+          }
+        }
+      }
+    },
+    "/users/remove_friend/{friend_id}": {
+      "delete": {
+        "summary": "Remove a friend",
+        "tags": [
+          "Friend Management"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "friend_id",
+            "description": "The ID of the friend to remove",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Friend removed"
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid"
+          },
+          "403": {
+            "description": "User is not authorized to perform this action"
+          },
+          "404": {
+            "description": "Friend not found"
+          }
+        }
+      }
+    },
+    "/users/nonfriends": {
+      "get": {
+        "summary": "Get non-friend users",
+        "tags": [
+          "Friend Management"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of non-friend users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "ID of the user"
+                      },
+                      "user_name": {
+                        "type": "string",
+                        "description": "User name of the user"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "user_name"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid"
+          },
+          "403": {
+            "description": "User is not authorized to access this resource"
+          }
+        }
+      }
+    },
+    "/transaction_request": {
+      "post": {
+        "summary": "Create a new transaction request",
+        "tags": [
+          "Inter-User Transactions"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recipient_username": {
+                    "type": "string"
+                  },
+                  "usd_amount": {
+                    "type": "number"
+                  },
+                  "lbp_amount": {
+                    "type": "number"
+                  },
+                  "usd_to_lbp": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "recipient_username",
+                  "usd_amount",
+                  "lbp_amount",
+                  "usd_to_lbp"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transaction request created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/get_transaction_requests": {
+      "get": {
+        "summary": "Get transaction requests for the authenticated user",
+        "tags": [
+          "Inter-User Transactions"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "trans_req_id": {
+                        "type": "integer"
+                      },
+                      "sender_id": {
+                        "type": "integer"
+                      },
+                      "sender_name": {
+                        "type": "string"
+                      },
+                      "recipient_id": {
+                        "type": "integer"
+                      },
+                      "usd_amount": {
+                        "type": "number"
+                      },
+                      "lbp_amount": {
+                        "type": "number"
+                      },
+                      "usd_to_lbp": {
+                        "type": "number"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "added_date": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/transaction_request/{request_id}": {
+      "post": {
+        "summary": "Accept or reject a transaction",
+        "tags": [
+          "Inter-User Transactions"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "ID of the transaction request to update"
+          }
+        ],
+        "requestBody": {
+          "description": "JSON object containing the new status of the transaction request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "accepted"
+                    ],
+                    "description": "New status of the transaction request"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction request updated successfully"
+          },
+          "400": {
+            "description": "Transaction request is already in the requested status or the request body is invalid"
+          },
+          "401": {
+            "description": "Authentication token is missing or invalid"
+          },
+          "403": {
+            "description": "User is not authorized to update this transaction request"
+          },
+          "404": {
+            "description": "Transaction request not found"
+          }
+        }
+      }
+    }
+  }
+}
