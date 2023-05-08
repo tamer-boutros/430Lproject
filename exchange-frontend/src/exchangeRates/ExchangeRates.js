@@ -250,7 +250,7 @@ const ExchangeRates = () => {
                 <p>LBP to USD Exchange Rate</p>
 
                 <div className="rates__card">
-                    <Tooltip title="the following rate is based on the transactions entered by the users in the last 100 days">
+                    <Tooltip title="the following rate is based on the transactions entered by the users in the last 7 days">
                         <article className='rates__cards'>
                             <BsCurrencyExchange className='rates__icon' />
                             <h5>Buy USD</h5>
@@ -260,7 +260,7 @@ const ExchangeRates = () => {
 
                     <MdCurrencyExchange className="rates__icon" />
 
-                    <Tooltip title="the following rate is based on the transactions entered by the users in the last 100 days">
+                    <Tooltip title="the following rate is based on the transactions entered by the users in the last 7 days">
                         <article className='rates__cards'>
                             <BsCurrencyExchange className='rates__icon' />
                             <h5>Sell USD</h5>
