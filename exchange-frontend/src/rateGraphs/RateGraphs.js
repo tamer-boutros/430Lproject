@@ -21,6 +21,7 @@ const RateGraphs = () => {
     let [graphDays, setgraphDays] = useState(3);//user input for how many graph days he wants to see
     let [pastBuy, setpastBuy] = useState();// graph buy rate data
     let [pastSell, setpastSell] = useState();// graph sell rate data
+    //used ApexCharts: https://apexcharts.com/react-chart-demos/line-charts/basic/
     const [chartDataBuy, setChartDataBuy] = useState({
         options: {
             chart: {

@@ -24,6 +24,7 @@ const Predictions = () => {
     let [bestSellTime, setBestSellTime] = useState();//best time to sell to be displayed
     let [futureBuy, setFutureBuy] = useState();//future buy usd predicted rates to be diplayed on the graph
     let [futureSell, setFutureSell] = useState();//future sell usd predicted rates to be diplayed on the graph
+    //used ApexCharts: https://apexcharts.com/react-chart-demos/line-charts/basic/
     const [chartDataBuy, setChartDataBuy] = useState({
         options: {
             chart: {

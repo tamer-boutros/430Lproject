@@ -65,7 +65,7 @@ const Platform = ({ userToken }) => {
     }
     useEffect(handlePaginatedListFriends, [userToken]);
 
-
+    //https://mui.com/material-ui/react-tabs/
     const handleChange = (event, newValue) => {
         setTabValue(newValue);
     };
