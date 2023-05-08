@@ -1,6 +1,6 @@
 # Web - Frontend
 
-The following is a general documentatino on how to setup your frontend
+The following is a general documentation on how to setup your frontend
 
 ## Tools
 
