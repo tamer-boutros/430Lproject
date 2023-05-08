@@ -18,9 +18,9 @@ var SERVER_URL = "http://127.0.0.1:5000"
 const RateGraphs = () => {
 
 
-    let [graphDays, setgraphDays] = useState(3);
-    let [pastBuy, setpastBuy] = useState();
-    let [pastSell, setpastSell] = useState();
+    let [graphDays, setgraphDays] = useState(3);//user input for how many graph days he wants to see
+    let [pastBuy, setpastBuy] = useState();// graph buy rate data
+    let [pastSell, setpastSell] = useState();// graph sell rate data
     const [chartDataBuy, setChartDataBuy] = useState({
         options: {
             chart: {
@@ -63,7 +63,7 @@ const RateGraphs = () => {
                 data: [0, 0, 0]
             }
         ]
-    });
+    });//chart buy
     const [chartDataSell, setChartDataSell] = useState({
         options: {
             chart: {
@@ -106,7 +106,7 @@ const RateGraphs = () => {
                 data: [0, 0, 0]
             }
         ]
-    });
+    });//chart sell
     //from material ui
     const [tabValue, setTabValue] = useState(chartDataBuy);
 
@@ -114,6 +114,7 @@ const RateGraphs = () => {
         setTabValue(newValue);
     };
 
+    //function to fetch the buy and sell rates
     function fetchRates() {
         fetch(`${SERVER_URL}/getrates/${graphDays}`)
             .then(response => response.json())
@@ -125,7 +126,7 @@ const RateGraphs = () => {
     }
     useEffect(fetchRates, [graphDays]);
 
-
+    //function to update the graphs given the number of days
     function updateGraph() {
         setChartDataBuy(
             {

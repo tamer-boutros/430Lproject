@@ -6,6 +6,10 @@ import { ImStatsDots } from 'react-icons/im'
 import { BiStats } from 'react-icons/bi'
 import { AiOutlineFieldNumber, AiFillCaretUp } from 'react-icons/ai'
 import { AiOutlinePercentage } from 'react-icons/ai'
+import { AiOutlineInfoCircle } from 'react-icons/ai'
+import { IconButton } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
+
 
 
 
@@ -13,12 +17,11 @@ var SERVER_URL = "http://127.0.0.1:5000"
 
 
 const Statistics = () => {
+    let [buyUsdStats, setBuyUsdStats] = useState(null);//buy usd statistics to be displayed
+    let [sellUsdStats, setSellUsdStats] = useState(null);//sell usd statistics to be diaplyed
+    let [totalStats, setTotalStats] = useState(null);//general statistics and insights
 
-    // let [buyUsdRate, setBuyUsdRate] = useState(null);
-    let [buyUsdStats, setBuyUsdStats] = useState(null)
-    let [sellUsdStats, setSellUsdStats] = useState(null)
-    let [totalStats, setTotalStats] = useState(null)
-
+    //function to fetch all statistic types mentioned above
     function fetchStats() {
         fetch(`${SERVER_URL}/stats`)
             .then(response => response.json())
@@ -33,7 +36,14 @@ const Statistics = () => {
     return (
         <div>
         <div id="statistics" className='wrapper'>
-            <Typography variant="h5">Total Statistics and Insights</Typography>
+        <Typography variant="h5">
+                        <span>Total Statistics and Insights</span>
+                        <Tooltip title="You can get a general overview about what transactions had been recorded in the past">
+                            <IconButton >
+                                <AiOutlineInfoCircle className='icon_button_design' />
+                            </IconButton>
+                        </Tooltip>
+                    </Typography>
             <div className="statistics__card">
                 <article className='statistics__cards'>
                     <AiOutlinePercentage className='statistics__icon' />
@@ -64,10 +74,16 @@ const Statistics = () => {
                 </article>
             </div>
         </div>
-             {/* <hr style={{ backgroundColor: "white", height: "1px" }} /> */}
 
             <div id="statistics2" className='wrapper'>
-            <Typography variant="h5">Sell Statistics and Insights</Typography>
+            <Typography variant="h5">
+                        <span>Sell Statistics and Insights</span>
+                        <Tooltip title="You can get a general overview about what sell transactions had been recorded in the past">
+                            <IconButton >
+                                <AiOutlineInfoCircle className='icon_button_design' />
+                            </IconButton>
+                        </Tooltip>
+                    </Typography>
             <div className="statistics__card">
                 <article className='statistics__cards'>
                     <ImStatsDots className='statistics__icon' />
@@ -106,8 +122,14 @@ const Statistics = () => {
             </div>
 
             <div id="statistics3" className='wrapper'>
-            <Typography variant="h5">Buy Statistics and Insights</Typography>
-            <div className="statistics__card">
+            <Typography variant="h5">
+                        <span>Buy Statistics and Insights</span>
+                        <Tooltip title="You can get a general overview about what buy transactions had been recorded in the past">
+                            <IconButton >
+                                <AiOutlineInfoCircle className='icon_button_design' />
+                            </IconButton>
+                        </Tooltip>
+                    </Typography>            <div className="statistics__card">
                 <article className='statistics__cards'>
                     <ImStatsDots className='statistics__icon' />
                     <h5>Median</h5>

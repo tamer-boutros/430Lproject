@@ -23,29 +23,29 @@ var SERVER_URL = "http://127.0.0.1:5000"
 
 
 const Platform = ({ userToken }) => {
-    let users = [];
-    let friends = [];
-    let [filteredListUsers, setfilteredListUsers] = new useState(users);
-    let [filteredListFriends, setfilteredListFriends] = new useState(friends);
-    let [tabValue, setTabValue] = useState("");
-    let [incomingFriendRequests, setIncomingFriendRequests] = useState(['ali'])
-    let [outgoingFriendRequests, setOutgoingFriendRequests] = useState([])
-    let [searchTermUsers, setsearchTermUsers] = useState("");
-    let [searchTermFriends, setsearchTermFriends] = useState("");
+    let users = [];//empty array of users
+    let friends = [];//empty array of riends
+    let [filteredListUsers, setfilteredListUsers] = new useState(users);//the list of users
+    let [filteredListFriends, setfilteredListFriends] = new useState(friends);//the list of friends
+    let [tabValue, setTabValue] = useState("");//tab value we are currently on
+    let [incomingFriendRequests, setIncomingFriendRequests] = useState(['ali']);//list incoming friend requests
+    let [outgoingFriendRequests, setOutgoingFriendRequests] = useState([]);//list of outgoing friend requests
+    let [searchTermUsers, setsearchTermUsers] = useState("");// user input when searching for a specific user
+    let [searchTermFriends, setsearchTermFriends] = useState("");//user input when searching for a specific friend
     const States = {
         RECORDING: "RECORDING",
         CLOSING: "CLOSING",
         PENDING: "PENDING",
-    };
+    };//states when recording a transaction
     let [transDialogState, settransDialogState] = useState(States.PENDING);
     let [recipientName, setRecipientName] = useState("")
     let [transaction_requests, setTransactionRequests] = useState([])
     let [paginationCountUsers, setPaginationCountUsers] = useState(10)
-    let [paginatedListUsers, setPaginatedListUsers] = useState([{user_name: "Not Available"}])
+    let [paginatedListUsers, setPaginatedListUsers] = useState([{user_name: "Not Available"}]);//paginated list of users(users that appear on 1 page)
     let [paginationCountFriends, setPaginationCountFriends] = useState(10)
-    let [paginatedListFriends, setPaginatedListFriends] = useState([{user_name: "Not Available"}])
+    let [paginatedListFriends, setPaginatedListFriends] = useState([{user_name: "Not Available"}]);//paginated list of friends(friends that appear on 1 page)
 
-
+    //function to display the users on a given page
     function handlePaginatedListUsers(pageNumber) {
         let startIndex = (pageNumber-1)*5
         let endIndex = pageNumber*5>filteredListUsers.length?filteredListUsers.length:pageNumber*5
@@ -55,6 +55,7 @@ const Platform = ({ userToken }) => {
     }
     useEffect(handlePaginatedListUsers, [userToken]);
 
+    //function to display the friends on a given page
     function handlePaginatedListFriends(pageNumber) {
         let startIndex = (pageNumber-1)*3
         let endIndex = pageNumber*3>filteredListFriends.length?filteredListFriends.length:pageNumber*3
@@ -69,6 +70,8 @@ const Platform = ({ userToken }) => {
         setTabValue(newValue);
     };
 
+
+    //function to fetch non friend users
     function fetchUsers() {
         let header = { "Content-Type": "application/json" };
         if (userToken) {
@@ -89,7 +92,7 @@ const Platform = ({ userToken }) => {
     // useEffect(fetchUsers, [userToken, friendRequestAction, removeFriend]);
     useEffect(fetchUsers, [userToken]);
 
-
+    //function to fetch all friends of a given user
     function fetchFriends() {
         let header = { "Content-Type": "application/json" };
         if (userToken) {
@@ -110,6 +113,7 @@ const Platform = ({ userToken }) => {
     // useEffect(fetchFriends, [userToken, friendRequestAction, removeFriend]);
     useEffect(fetchFriends, [userToken]);
 
+    //function to fetch all friend requests
     function fetchFriendRequests() {
         let header = { "Content-Type": "application/json" };
         if (userToken) {
@@ -129,7 +133,7 @@ const Platform = ({ userToken }) => {
     // useEffect(fetchFriendRequests, [userToken, friendRequestAction]);
     useEffect(fetchFriendRequests, [userToken]);
 
-
+    //function to answer a friend request(accepted/rejected)
     function friendRequestAction(answer, senderName) {
         let header = { "Content-Type": "application/json" };
         if (userToken) {
@@ -155,6 +159,7 @@ const Platform = ({ userToken }) => {
             });
     }
 
+    //function to remove a specific friend
     function removeFriend(friendId) {
         let header = { "Content-Type": "application/json" };
         if (userToken) {
@@ -176,6 +181,7 @@ const Platform = ({ userToken }) => {
             });
     }
 
+    //function to record a transaction with a given friend
     function recordTransaction(recipient_username, usd_amount, lbp_amount, usd_to_lbp) {
         settransDialogState(States.PENDING)
         let header = { "Content-Type": "application/json" };
@@ -203,6 +209,7 @@ const Platform = ({ userToken }) => {
             });
     }
 
+    //function to fetch transaction requests
     function fetchTransactionRequests() {
         let header = { "Content-Type": "application/json" };
         if (userToken) {
@@ -219,7 +226,7 @@ const Platform = ({ userToken }) => {
     // useEffect(fetchTransactionRequests, [userToken, recordTransactionAction]);
     useEffect(fetchTransactionRequests, [userToken]);
 
-
+//function to answer a transaction request(accept/reject)
     function recordTransactionAction(answer, transactionRequestId) {
         let header = { "Content-Type": "application/json" };
         if (userToken) {
@@ -243,19 +250,22 @@ const Platform = ({ userToken }) => {
             });
     }
 
-
+    //function to handle the search for users
     const handleSearchUsers = () => {
         let updatedList = [...filteredListUsers];
         updatedList = updatedList.filter((item) => item.user_name.toLowerCase().indexOf(searchTermUsers.toLowerCase()) !== -1);
         setPaginatedListUsers(updatedList);
     };
 
+    //function to handle the search for friends
     const handleSearchFriends = () => {
         let updatedListFriends = [...filteredListFriends];
         updatedListFriends = updatedListFriends.filter((item) => item.user_name.toLowerCase().indexOf(searchTermFriends.toLowerCase()) !== -1);
         setPaginatedListFriends(updatedListFriends);
     };
 
+
+    //function to add a user as a friend
     const handleAddUser = (user) => {
         let header = { "Content-Type": "application/json" };
         if (userToken) {

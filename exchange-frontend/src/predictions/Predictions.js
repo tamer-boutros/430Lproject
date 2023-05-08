@@ -19,11 +19,11 @@ var SERVER_URL = "http://127.0.0.1:5000"
 const Predictions = () => {
 
 
-    let [predictionDays, setPredictionDays] = useState(3);
-    let [bestBuyTime, setBestBuyTime] = useState();
-    let [bestSellTime, setBestSellTime] = useState();
-    let [futureBuy, setFutureBuy] = useState();
-    let [futureSell, setFutureSell] = useState();
+    let [predictionDays, setPredictionDays] = useState(3);//prediction days inputed by the user
+    let [bestBuyTime, setBestBuyTime] = useState();//best time to buy to be displayed
+    let [bestSellTime, setBestSellTime] = useState();//best time to sell to be displayed
+    let [futureBuy, setFutureBuy] = useState();//future buy usd predicted rates to be diplayed on the graph
+    let [futureSell, setFutureSell] = useState();//future sell usd predicted rates to be diplayed on the graph
     const [chartDataBuy, setChartDataBuy] = useState({
         options: {
             chart: {
@@ -66,7 +66,7 @@ const Predictions = () => {
                 data: [0, 0, 0]
             }
         ]
-    });
+    });//chart data buy
     const [chartDataSell, setChartDataSell] = useState({
         options: {
             chart: {
@@ -109,7 +109,8 @@ const Predictions = () => {
                 data: [0, 0, 0]
             }
         ]
-    });
+    });//chart data sell
+
     //from material ui
     const [tabValue, setTabValue] = useState(chartDataBuy);
 
@@ -117,6 +118,7 @@ const Predictions = () => {
         setTabValue(newValue);
     };
 
+    //function to fetch best time to buy and to sell
     function fetchBestTime() {
         fetch(`${SERVER_URL}/best_time`)
             .then(response => response.json())
@@ -127,6 +129,7 @@ const Predictions = () => {
     }
     useEffect(fetchBestTime, []);
 
+    //function to fetch the predicted buy and sell rates
     function fetchPrediction() {
         fetch(`${SERVER_URL}/predict/${predictionDays}`)
             .then(response => response.json())
@@ -137,7 +140,7 @@ const Predictions = () => {
     }
     useEffect(fetchPrediction, [predictionDays]);
 
-
+    //function to update the graphs given the number of days
     function updateGraph() {
         setChartDataBuy(
             {
