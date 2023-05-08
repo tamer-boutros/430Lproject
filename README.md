@@ -43,3 +43,4 @@ the user can accept/reject friend requests from other users. Note this functiona
 ### Friends and Transactions:
 the user can see his list of friends, ad record transactions with them. this will send a transaction request to the other user that will choose either to accept or reject the transaction.. Note this functionality requires being logged in
 
+![EECE430LDiagram](https://user-images.githubusercontent.com/123478680/236902461-2cd03d12-be7c-4dba-ba84-32de09a0a8f8.png)
