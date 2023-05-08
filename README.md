@@ -1,9 +1,9 @@
 # Exchange Rate App
 EECE 430L Project developed for Web and Android. Supervised by Dr. Hussein Bakri and Dr. Mohamad Chehab. Developed by:
 
-- Tamer Boutrous
-- Ralph Abou Nader
-- Mohamad Khalil
+- Tamer Boutrous - Backend
+- Ralph Abou Nader - Android
+- Mohamad Khalil - Web
 
 ## Note:
 We deplyed both frontend and backend on the web.
